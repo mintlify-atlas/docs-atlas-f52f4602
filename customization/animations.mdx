@@ -1,7 +1,7 @@
 ---
-title: "Animations and Motion in Retro Cosmic Arcade"
+title: "CSS Animations and Framer Motion — Retro Cosmic Arcade"
 sidebarTitle: "Animations"
-description: "Learn how CSS keyframe animations and Framer Motion power every hover, drag, and particle effect in Retro Cosmic Arcade, and how to customize or disable them."
+description: "CSS keyframe animations and Framer Motion power every hover, drag, and particle effect in Retro Cosmic Arcade. Learn how to customize or disable them."
 ---
 
 Retro Cosmic Arcade uses two complementary animation layers: CSS keyframe animations registered through Tailwind for repeating ambient effects, and Framer Motion for all interactive gesture-driven motion. This page documents every animation in the project, the exact values used, and how to override, extend, or disable them.
@@ -14,7 +14,7 @@ Retro Cosmic Arcade uses two complementary animation layers: CSS keyframe animat
 
 ## CSS Animations
 
-Two custom keyframe animations are defined in `assets/main.css` and exposed as Tailwind utility classes via the `theme.extend.animation` and `theme.extend.keyframes` config blocks.
+Two custom keyframe animations are defined in `assets/main.css` and compiled into Tailwind utility classes (`animate-blink` and `animate-marquee`) via the `theme.extend.animation` and `theme.extend.keyframes` source config blocks. Because the project ships as a compiled SPA, modifying these animations requires editing the source config and rebuilding with `vite build`.
 
 ### `animate-blink`
 

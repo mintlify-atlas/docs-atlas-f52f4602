@@ -1,10 +1,10 @@
 ---
-title: "CursorTrail: Neon Particle Mouse Trail Effect"
+title: "CursorTrail: Neon Glowing Mouse Particle Trail Effect"
 sidebarTitle: "CursorTrail"
 description: "A zero-prop Framer Motion component that renders a neon cyan/magenta glowing particle trail following the mouse cursor across the entire page."
 ---
 
-`CursorTrail` attaches a global `mousemove` listener and renders a short stream of glowing neon particles that follow the user's cursor around the page. Each particle is a 2×2 CSS-pixel cyan square with a dual-color glow (`#4dffff` cyan + `#ff4ad8` magenta), fading out with a scale-down animation over 500 ms. The component mounts a fixed, pointer-events-none overlay at z-index 50 so it never interferes with clicks, forms, or other interactive elements.
+`CursorTrail` attaches a global `mousemove` listener and renders a short stream of glowing neon particles that follow the user's cursor around the page. Each particle is an 8×8px cyan square (`h-2 w-2` in Tailwind) with a dual-color glow (`#4dffff` cyan + `#ff4ad8` magenta), fading out with a scale-down animation over 500 ms. The component mounts a fixed, pointer-events-none overlay at z-index 50 so it never interferes with clicks, forms, or other interactive elements.
 
 ---
 

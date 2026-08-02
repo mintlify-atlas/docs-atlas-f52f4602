@@ -1,5 +1,5 @@
 ---
-title: "Typography and Font System in Retro Cosmic Arcade"
+title: "Typography and Font System — Retro Cosmic Arcade Guide"
 sidebarTitle: "Fonts"
 description: "Explore the four Google Fonts, their Tailwind utility classes, font pairing advice, and how to swap any typeface in Retro Cosmic Arcade."
 ---
@@ -101,12 +101,16 @@ The four fonts were chosen to complement each other across three distinct UI zon
 
 ## Swapping a Font
 
+<Warning>
+  Retro Cosmic Arcade is a compiled SPA — the `@import` URL and Tailwind font stacks are baked into `assets/main.css` at build time. Swapping a font requires editing the project source files and running `vite build` to regenerate the stylesheet.
+</Warning>
+
 <Steps>
   <Step title="Choose a replacement from Google Fonts">
     Browse [fonts.google.com](https://fonts.google.com) and pick a replacement. Note the exact family name and the weights you need.
   </Step>
-  <Step title="Update the @import URL">
-    Open `assets/main.css` and edit the `@import` string. Replace the old `family=` parameter with the new one:
+  <Step title="Update the @import URL in source">
+    In the project source, open `assets/main.css` (before the build step) and edit the `@import` string. Replace the old `family=` parameter with the new one:
 
     ```css
     /* Before */
@@ -116,8 +120,8 @@ The four fonts were chosen to complement each other across three distinct UI zon
     @import "https://fonts.googleapis.com/css2?...&family=Press+Start+2P&...";
     ```
   </Step>
-  <Step title="Update the Tailwind config">
-    Open `tailwind.config.js` and update the matching entry in `theme.extend.fontFamily`:
+  <Step title="Update the Tailwind source config">
+    In the project source, open `tailwind.config.js` and update the matching entry in `theme.extend.fontFamily`:
 
     ```js tailwind.config.js
     fontFamily: {
@@ -130,8 +134,8 @@ The four fonts were chosen to complement each other across three distinct UI zon
 
     Wrap family names that contain spaces in inner quotes so the CSS `font-family` value is valid.
   </Step>
-  <Step title="Check sizes and line-height">
-    Different fonts have different x-heights and advance widths. After swapping, scan for any components that used size-specific classes (`text-[10px]`, `leading-tight`, etc.) tuned to the old font and adjust as needed.
+  <Step title="Rebuild and check sizes">
+    Run `vite build` to compile the updated Tailwind config and `@import` into the new `assets/main.css`. Then scan for any components that used size-specific classes (`text-[10px]`, `leading-tight`, etc.) tuned to the old font and adjust as needed.
   </Step>
 </Steps>
 

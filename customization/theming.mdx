@@ -1,15 +1,19 @@
 ---
-title: "Customizing the Y2K Color Theme and Design Tokens"
+title: "Y2K Color Tokens, Borders, and Body Styles — Theming"
 sidebarTitle: "Theming"
 description: "Swap color tokens, apply pixel border variants, enable the CRT scanline overlay, and style chrome buttons in Retro Cosmic Arcade's Y2K design system."
 ---
 
-Retro Cosmic Arcade's visual identity is built on a compact set of hand-picked color tokens, all registered in the Tailwind config and used consistently across every component. This page covers every color token, the pixel border utility classes, the CRT scanline effect, the Win98-inspired chrome button, and global body styles — giving you everything you need to retheme the project without hunting through individual components.
+Retro Cosmic Arcade's visual identity is built on a compact set of hand-picked color tokens compiled into the stylesheet, and used consistently across every component. This page covers every color token, the pixel border utility classes, the CRT scanline effect, the Win98-inspired chrome button, and global body styles — giving you everything you need to retheme the project without hunting through individual components.
+
+<Note>
+  This is a compiled SPA — Tailwind CSS is pre-compiled into `assets/main.css`. There is no `tailwind.config.js` to edit at runtime. To change tokens or add new utility classes you must edit the source Tailwind config and rebuild the project.
+</Note>
 
 ## Color Tokens
 
 <Note>
-  All color tokens are defined in the Tailwind config under `theme.extend.colors`. Adding a new token there makes it available as a Tailwind utility class (e.g. `bg-y2k-cyan`, `text-y2k-cyan`, `border-y2k-cyan`) everywhere in the project.
+  All color tokens are defined in the Tailwind source config under `theme.extend.colors`. Each token is compiled into the bundled `assets/main.css` as a Tailwind utility class (e.g. `bg-y2k-cyan`, `text-y2k-cyan`, `border-y2k-cyan`). Because the project ships as a compiled SPA, adding or changing a token requires editing the source config and rebuilding.
 </Note>
 
 | Token name       | Hex value | Tailwind class prefix | Typical use                                 |
@@ -24,9 +28,13 @@ Retro Cosmic Arcade's visual identity is built on a compact set of hand-picked c
 
 ### Changing a Color
 
+<Warning>
+  Retro Cosmic Arcade is a compiled SPA. There is no editable `tailwind.config.js` in the deployed output — Tailwind has already been compiled into `assets/main.css`. To change a color token you must edit the Tailwind source config and run `vite build` (or your build script) to regenerate the stylesheet.
+</Warning>
+
 <Steps>
-  <Step title="Open the Tailwind config">
-    Find `tailwind.config.js` (or `tailwind.config.ts`) in the project root and locate the `theme.extend.colors` block.
+  <Step title="Open the Tailwind source config">
+    In the project source, find `tailwind.config.js` (or `tailwind.config.ts`) and locate the `theme.extend.colors` block.
 
     ```js tailwind.config.js
     export default {
@@ -47,7 +55,7 @@ Retro Cosmic Arcade's visual identity is built on a compact set of hand-picked c
     ```
   </Step>
   <Step title="Update the hex value">
-    Replace the hex string for whichever token you want to change. Tailwind's JIT compiler picks up the change on the next hot-reload — all utility classes that reference that token update automatically.
+    Replace the hex string for whichever token you want to change, then rebuild. All Tailwind utility classes that reference that token update automatically in the new compiled output.
   </Step>
   <Step title="Update CSS custom classes if needed">
     Some utility classes in `assets/main.css` reference raw hex values directly (e.g. `.pixel-border-cyan`, `.chrome-bg`). If you change `y2k-cyan` you should also update those references to keep the design consistent. See the sections below.
@@ -115,10 +123,10 @@ The `.scanlines` class renders a CSS-only CRT overlay using a repeating linear g
 .scanlines {
   background: linear-gradient(
     to bottom,
-    transparent,
+    transparent 0%,
     transparent 50%,
-    rgba(0, 0, 0, 0.2) 50%,
-    rgba(0, 0, 0, 0.2)
+    rgba(0,0,0,0.2) 50%,
+    rgba(0,0,0,0.2)
   );
   background-size: 100% 4px;
   pointer-events: none;
@@ -151,7 +159,7 @@ The `.chrome-bg` class reproduces the Windows 98 / early-2000s bevel button aest
   border-bottom: 2px solid #333333;
   border-right:  2px solid #333333;
   color: #000;
-  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+  text-shadow: 1px 1px 0px rgba(255,255,255,.5);
 }
 
 .chrome-bg:active {

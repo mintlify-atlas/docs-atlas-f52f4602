@@ -1,5 +1,5 @@
 ---
-title: "Footer: CRT Scanline Toggle and Retro Badges"
+title: "Footer Component: CRT Scanline Toggle and Retro Badges"
 sidebarTitle: "Footer"
 description: "Documents the Footer component — its three 88×31 retro web badges, the CRT scanline overlay toggle, and body-class side effect behavior."
 ---
@@ -46,7 +46,7 @@ useEffect(() => {
 }, [scanlines]);
 ```
 
-When `scanlines-active` is present on `<body>`, the `.scanlines` utility class drives a fixed, full-viewport `<div>` overlay (rendered inside the footer at `z-40`) that produces the retro scan-line effect.
+When `scanlines-active` is present on `<body>`, external CSS rules can target `body.scanlines-active` to apply additional global effects. Separately — and independently driven by the same state boolean — the Footer component conditionally renders a fixed, full-viewport `<div className="scanlines">` overlay directly in its JSX at `z-40`. Both the body class and the overlay div are added/removed together whenever the toggle state changes.
 
 ### CSS Definition
 
@@ -74,10 +74,10 @@ Every 4 px tall "row" is split: the top half is transparent and the bottom half 
 
 <Steps>
   <Step title="Page loads">
-    `scanlines` initialises as `true`. `useEffect` fires and adds `scanlines-active` to `document.body`. The fixed `.scanlines` div is rendered inside the footer.
+    `scanlines` initialises as `true`. `useEffect` fires and adds `scanlines-active` to `document.body`. At the same time, the JSX conditional `{scanlines && <div className="scanlines ...">}` renders the fixed full-viewport overlay div inside the footer.
   </Step>
   <Step title="User clicks the toggle button">
-    `setScanlines(!scanlines)` flips the state. `useEffect` re-runs, removing `scanlines-active` from `document.body`. The overlay div is no longer rendered.
+    `setScanlines(!scanlines)` flips the state to `false`. `useEffect` re-runs, removing `scanlines-active` from `document.body`. The JSX conditional simultaneously removes the overlay div from the DOM.
   </Step>
   <Step title="User clicks again">
     State flips back to `true`. The class is re-added and the overlay reappears.

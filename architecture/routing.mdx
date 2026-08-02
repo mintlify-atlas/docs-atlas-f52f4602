@@ -1,5 +1,5 @@
 ---
-title: "Hash-Based Routing with React Router 6"
+title: "Static Hash Routing with React Router 6 — How It Works"
 sidebarTitle: "Routing"
 description: "How Retro Cosmic Arcade uses static HTML entry points, window.__STATIC_PAGE_ROUTE__, and React Router 6 hash routing across seven pages."
 ---
@@ -73,24 +73,9 @@ Every HTML file contains the following inline script in `<head>`. This script ru
 
 ## How React Router 6 Consumes the Hash
 
-The React app mounts a `HashRouter` from `react-router-dom`. All `<Route>` declarations live inside it, so every URL fragment (`#/`, `#/about`, `#/projects`, etc.) is matched against the route table. When a user clicks a nav link, React Router updates the hash fragment — the browser does not request a new file from the server, so navigation is instant.
+The React app mounts a `HashRouter` from `react-router-dom` (compiled into `assets/main.js`). All route declarations live inside it, so every URL fragment (`#/`, `#/about`, `#/projects`, etc.) is matched against the route table defined in `components/WebringNav.js`. When a user clicks a nav link, React Router updates the hash fragment — the browser does not request a new file from the server, so navigation is instant.
 
-```jsx
-import { HashRouter, Routes, Route } from "react-router-dom";
-
-// Inside the app root:
-<HashRouter>
-  <Routes>
-    <Route path="/"            element={<Home />} />
-    <Route path="/about"       element={<About />} />
-    <Route path="/projects"    element={<Projects />} />
-    <Route path="/skills"      element={<Skills />} />
-    <Route path="/writing"     element={<Writing />} />
-    <Route path="/case-studies" element={<CaseStudies />} />
-    <Route path="/contact"     element={<Contact />} />
-  </Routes>
-</HashRouter>
-```
+The `WebringNav` component drives both the navigation bar and the route table. It uses `useLocation()` from React Router to determine the active route and renders `◄ PREV` / `NEXT ►` links to the adjacent entries in the `routes` array, giving the experience of browsing a retro webring.
 
 ## Hash Routing vs. History Routing
 

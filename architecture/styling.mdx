@@ -46,7 +46,7 @@ body {
 /* Text selection highlight */
 ::selection {
   background-color: #ff4ad8; /* y2k-magenta */
-  color: #060010;
+  color: #ffffff;
 }
 ```
 
@@ -54,28 +54,25 @@ The `crosshair` cursor is a direct reference to late-1990s gaming sites and Flas
 
 ## Pixel Border Utility Classes
 
-Three pixel-border classes wrap content in a chunky, low-resolution outline that evokes the border styles common in early web design tools like FrontPage and Dreamweaver. Each applies a `box-shadow`-based technique to avoid adding box-model width:
+Three pixel-border classes wrap content in a chunky, low-resolution outline that evokes the border styles common in early web design tools like FrontPage and Dreamweaver. Each combines a solid `border` with an offset `box-shadow` to create the stacked pixel-edge look:
 
 ```css
 /* Cyan pixel border */
 .pixel-border-cyan {
-  box-shadow:
-    0 0 0 2px #060010,
-    0 0 0 4px #4dffff;
+  border: 2px solid #4dffff;
+  box-shadow: 4px 4px #ff4ad8;
 }
 
 /* Lime pixel border */
 .pixel-border-lime {
-  box-shadow:
-    0 0 0 2px #060010,
-    0 0 0 4px #adff2f;
+  border: 2px solid #adff2f;
+  box-shadow: 4px 4px #4dffff;
 }
 
 /* Magenta pixel border */
 .pixel-border-magenta {
-  box-shadow:
-    0 0 0 2px #060010,
-    0 0 0 4px #ff4ad8;
+  border: 2px solid #ff4ad8;
+  box-shadow: 4px 4px #adff2f;
 }
 ```
 
@@ -89,13 +86,14 @@ Apply them directly to any element:
 
 ## Inset Bevel (`.inset-bevel`)
 
-The `.inset-bevel` class replicates the inset depression effect used heavily in Win98-era dialog boxes and form fields. It uses layered `box-shadow` values to create a dark top-left edge and a lighter bottom-right edge:
+The `.inset-bevel` class replicates the inset depression effect used heavily in Win98-era dialog boxes and form fields. It uses directional `border` values — dark on top-left, cyan on bottom-right — to simulate a surface recessed into the panel:
 
 ```css
 .inset-bevel {
-  box-shadow:
-    inset 2px 2px 0px #060010,
-    inset -2px -2px 0px #6b6480;
+  border-top: 2px solid #060010;
+  border-left: 2px solid #060010;
+  border-bottom: 2px solid #4dffff;
+  border-right: 2px solid #4dffff;
 }
 ```
 
@@ -103,43 +101,49 @@ Use it on panels, text inputs, and content areas that should appear "pressed int
 
 ## Chrome Bevel Background (`.chrome-bg`)
 
-`.chrome-bg` reproduces the raised 3D button or window-chrome look from Windows 95/98. It uses an outset `box-shadow` pair — a bright edge on top-left and a dark edge on bottom-right — to simulate a convex surface catching light:
+`.chrome-bg` reproduces the raised 3D button or window-chrome look from Windows 95/98. It uses a silver-to-dark-silver gradient background with directional borders — white on top-left and dark on bottom-right — to simulate a convex surface catching light:
 
 ```css
 .chrome-bg {
-  background-color: #d4d0e8; /* y2k-silver */
-  box-shadow:
-    inset -2px -2px 0px #6b6480,
-    inset 2px 2px 0px #ffffff;
+  background: linear-gradient(to bottom, #d4d0e8, #6b6480);
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-bottom: 2px solid #333333;
+  border-right: 2px solid #333333;
+  color: #000;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+}
+
+.chrome-bg:active {
+  border-top: 2px solid #333333;
+  border-left: 2px solid #333333;
+  border-bottom: 2px solid #ffffff;
+  border-right: 2px solid #ffffff;
+  background: linear-gradient(to bottom, #6b6480, #d4d0e8);
 }
 ```
 
-This class is used by the `ChromeButton` component to render buttons that look like genuine Win98 UI widgets.
+This class is used by the `ChromeButton` component to render buttons that look like genuine Win98 UI widgets. The `:active` state reverses the borders and gradient to simulate physical depression.
 
 ## CRT Scanline Overlay (`.scanlines`)
 
-The `.scanlines` class applies a full-viewport, fixed-position overlay that simulates the horizontal scan lines of a cathode-ray tube monitor:
+The `.scanlines` class applies a repeating striped background that simulates the horizontal scan lines of a cathode-ray tube monitor. It is applied directly to the overlay element — not via a pseudo-element:
 
 ```css
-.scanlines::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
+.scanlines {
+  background: linear-gradient(
     to bottom,
     transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.15) 2px,
-    rgba(0, 0, 0, 0.15) 4px
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.2)
   );
-  z-index: 9999;
+  background-size: 100% 4px;
+  pointer-events: none;
 }
 ```
 
-The overlay uses `pointer-events: none` so it does not interfere with click or hover interactions. It is layered at `z-index: 9999` to sit above all content.
-
-The `.scanlines` class is toggled at runtime by the `Footer` component, allowing visitors to enable or disable the effect:
+The `pointer-events: none` rule ensures the overlay does not block any click or hover interactions beneath it. The `.scanlines` class is toggled at runtime by the `Footer` component, allowing visitors to enable or disable the effect:
 
 ```jsx
 // Footer component toggles the class on <body> or a wrapper element
@@ -147,7 +151,7 @@ document.body.classList.toggle("scanlines");
 ```
 
 <Info>
-  The `pointer-events: none` rule on `.scanlines::after` is critical — without it, the overlay would block all mouse interactions on the page. If you customise the overlay, always preserve this rule.
+  The `pointer-events: none` rule on `.scanlines` is critical — without it, the overlay would block all mouse interactions on the page. If you customise the overlay, always preserve this rule.
 </Info>
 
 ## Typography

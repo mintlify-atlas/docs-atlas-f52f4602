@@ -1,7 +1,7 @@
 ---
-title: "Retro Cosmic Arcade: Y2K Portfolio SPA Built with React"
+title: "Retro Cosmic Arcade — Y2K Portfolio SPA with React 18"
 sidebarTitle: "Introduction"
-description: "Retro Cosmic Arcade is a Y2K-aesthetic personal portfolio SPA built with React 18, Vite, React Router 6, Framer Motion, and Tailwind CSS."
+description: "A Y2K-aesthetic portfolio SPA built with React 18, Vite, React Router 6, and Framer Motion: 8 retro components across 7 hash-routed pages."
 ---
 
 Retro Cosmic Arcade is a single-page application portfolio that channels the garish, neon-soaked energy of late-1990s and early-2000s web design — blinking marquees, CRT scanline overlays, chunky pixel borders, and a deep-space color palette — while running entirely on a modern React 18 stack. This page introduces the project's goals, philosophy, technology choices, and the key features that make it feel like a long-lost GeoCities page that somehow learned React.
@@ -11,6 +11,34 @@ Retro Cosmic Arcade is a single-page application portfolio that channels the gar
 The visual language of the internet circa 1999–2002 was defined by constraints: low-resolution screens, limited color palettes, bitmapped fonts, and a sense that every possible pixel should be filled. Retro Cosmic Arcade embraces those constraints deliberately — not as a limitation but as a design system. The dark cosmic background (`#060010`), acid-cyan glows, magenta highlights, and lime-green health bars are all intentional callbacks to the era of hit counters, guestbooks, and `<marquee>` tags.
 
 Unlike true retro sites, the project achieves this look through modern tooling: Tailwind CSS utility classes, Framer Motion animations, and a component architecture that keeps the codebase maintainable while the UI looks delightfully chaotic.
+
+## Routes
+
+The site has seven pages, each backed by its own static HTML entry point and identified by a thematic name in the navigation bar:
+
+| Path | Nav Label |
+|---|---|
+| `/` | HOME |
+| `/about` | ABOUT |
+| `/projects` | PROJECTS |
+| `/skills` | STATS |
+| `/writing` | JOURNAL |
+| `/case-studies` | DEEP DIVES |
+| `/contact` | GUESTBOOK |
+
+## Color Palette
+
+Seven custom Tailwind tokens define the entire Y2K color system:
+
+| Token | Hex | Role |
+|---|---|---|
+| `y2k-cyan` | `#4dffff` | Primary accent — link hovers, nav active state |
+| `y2k-magenta` | `#ff4ad8` | Secondary accent — selection highlight, hover glows |
+| `y2k-lime` | `#adff2f` | Tertiary accent — HP bars, success states |
+| `y2k-black` | `#060010` | Body background — deep cosmic near-black |
+| `y2k-panel` | `#150826` | Panel and card backgrounds |
+| `y2k-silver` | `#d4d0e8` | Default text — cool lavender-tinted white |
+| `y2k-darkSilver` | `#6b6480` | Muted/secondary text, disabled states |
 
 ## Technology Stack
 
@@ -61,5 +89,8 @@ Unlike true retro sites, the project achieves this look through modern tooling: 
   </Card>
   <Card title="Styling" icon="paintbrush" href="/architecture/styling">
     Explore the Y2K design token system, pixel border utilities, CRT effect classes, and the custom Tailwind configuration.
+  </Card>
+  <Card title="Components" icon="puzzle-piece" href="/components/overview">
+    Full reference for all eight components: ChromeButton, CursorTrail, Footer, HitCounter, MarqueeTicker, PixelHPBar, Polaroid, and WebringNav.
   </Card>
 </CardGroup>

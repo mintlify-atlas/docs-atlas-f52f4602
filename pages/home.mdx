@@ -1,17 +1,17 @@
 ---
-title: "Home Page: The Arcade Entrance (Route: /)"
+title: "Home Page: Retro Cosmic Arcade Entrance (Route: /)"
 sidebarTitle: "Home"
 description: "Covers the Home page at route /, its hero section, hit counter, marquee ticker, and how to customise the arcade entrance content for your own portfolio."
 ---
 
-The Home page is the first thing visitors see when they arrive at Retro Cosmic Arcade. Served by `pages/Home.html` (title: **"Home | retro-cosmic-arcade"**), it sets the tone for the entire site — a glowing, animated arcade entrance complete with a scrolling marquee ticker, a retro visitor hit counter, and a hero call-to-action. This page documents what the Home route contains and how to make it your own.
+The Home page is the first thing visitors see when they arrive at Retro Cosmic Arcade. Served by `index.html` at the site root (title: **"Home | retro-cosmic-arcade"**), it sets the tone for the entire site — a glowing, animated arcade entrance complete with a scrolling marquee ticker, a retro visitor hit counter, and a hero call-to-action. This page documents what the Home route contains and how to make it your own.
 
 ## Route Details
 
 | Property | Value |
 |---|---|
 | Route path | `/` |
-| HTML shell | `pages/Home.html` |
+| HTML shell | `index.html` |
 | `window.__STATIC_PAGE_ROUTE__` | `"/"` |
 | WebringNav label | `HOME` |
 | `<title>` tag | `Home \| retro-cosmic-arcade` |
@@ -101,5 +101,5 @@ export default function Home() {
 </Accordion>
 
 <Note>
-  The HTML shell at `pages/Home.html` sets `window.__STATIC_PAGE_ROUTE__ = "/"` and automatically redirects to the hash URL `#/` for static hosting compatibility. Do not modify this script block unless you are changing the routing strategy for the whole site.
+  The HTML shell at `index.html` sets `window.__STATIC_PAGE_ROUTE__ = "/"` and automatically redirects to the hash URL `#/` for static hosting compatibility. Do not modify this script block unless you are changing the routing strategy for the whole site.
 </Note>
