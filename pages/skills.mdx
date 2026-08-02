@@ -1,0 +1,132 @@
+---
+title: "Skills Page: Pixel HP Bar Stats Display (Route: /skills)"
+sidebarTitle: "Skills"
+description: "Documents the Skills page (STATS in WebringNav) at /skills — PixelHPBar segment grid, how percentages map to filled segments, and editing skills data."
+---
+
+The Skills page (route `/skills`, HTML shell title: **"Skills | retro-cosmic-arcade"**) presents your technical competencies as an RPG character stat sheet, using `<PixelHPBar>` components to render each skill as a row of pixel-art HP segments. In the webring navigation this route is labelled **STATS** — a deliberate nod to the character information screens of classic role-playing games. This page documents the component usage, how percentages map to visual segments, and how to add or edit skills.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/skills` |
+| HTML shell | `pages/Skills.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/skills"` |
+| WebringNav label | `STATS` |
+| `<title>` tag | `Skills \| retro-cosmic-arcade` |
+
+## PixelHPBar Overview
+
+Each `<PixelHPBar>` renders a labelled row: the skill name on the left, then a bar of 20 pixel-art segments filling left-to-right based on the `percentage` prop, and the numeric percentage on the right.
+
+```jsx
+<PixelHPBar label="React" percentage={95} />
+<PixelHPBar label="TypeScript" percentage={80} />
+<PixelHPBar label="Node.js" percentage={75} />
+<PixelHPBar label="CSS / Tailwind" percentage={90} />
+```
+
+### Segment Mapping
+
+The bar always contains **20 segments**. A `percentage` value is converted to filled segments using `Math.round(percentage / 100 * 20)`.
+
+| Percentage | Filled Segments | Visual |
+|---|---|---|
+| `100` | 20 / 20 | Full bar |
+| `75` | 15 / 20 | Three-quarters |
+| `50` | 10 / 20 | Half bar |
+| `25` | 5 / 20 | Quarter bar |
+| `0` | 0 / 20 | Empty bar |
+
+<Note>
+  Because there are only 20 segments, percentage values are effectively **rounded to the nearest 5%** in the visual output. A value of `83` and `85` both render 17 filled segments. Use the number for semantic accuracy — the visual difference between closely ranked skills is intentional.
+</Note>
+
+## PixelHPBar Props Reference
+
+<ParamField path="label" type="string" required>
+  The skill name displayed to the left of the HP bar (e.g. `"React"`, `"Python"`, `"Figma"`).
+</ParamField>
+
+<ParamField path="percentage" type="number" required>
+  A value from `0` to `100` representing proficiency level. Maps to 0–20 filled pixel segments.
+</ParamField>
+
+## Full Skills Page Example
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+import PixelHPBar from "../components/PixelHPBar";
+
+export default function Skills() {
+  const skills = [
+    { label: "React",          percentage: 95 },
+    { label: "TypeScript",     percentage: 80 },
+    { label: "Node.js",        percentage: 75 },
+    { label: "CSS / Tailwind", percentage: 90 },
+    { label: "PostgreSQL",     percentage: 70 },
+    { label: "Docker",         percentage: 60 },
+    { label: "Figma",          percentage: 65 },
+    { label: "Three.js",       percentage: 45 },
+  ];
+
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-10 mb-2">
+          STATS.SYS
+        </h1>
+        <p className="font-vt323 text-y2k-silver text-xl mb-10">
+          Current character attributes. Subject to change after coffee.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8 mb-12">
+          {skills.map((skill) => (
+            <PixelHPBar
+              key={skill.label}
+              label={skill.label}
+              percentage={skill.percentage}
+            />
+          ))}
+        </div>
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+## Adding and Editing Skills
+
+<Steps>
+  <Step title="Locate the skills data">
+    Skills are defined as an array of objects (or inline JSX) in the Skills route component. The recommended pattern is a `skills` array with `{ label, percentage }` entries, mapped to `<PixelHPBar>` elements.
+  </Step>
+  <Step title="Add a new skill">
+    Append a new entry to the array:
+    ```js
+    { label: "Rust", percentage: 30 },
+    ```
+    The new bar will appear in the grid automatically.
+  </Step>
+  <Step title="Remove a skill">
+    Delete the corresponding array entry. No other changes needed.
+  </Step>
+  <Step title="Update a percentage">
+    Change the `percentage` value. Remember the 20-segment visual resolution — differences smaller than ~5 percentage points may not be visually distinguishable.
+  </Step>
+  <Step title="Group skills by category (optional)">
+    For a cleaner STATS screen, split skills into labelled sections — e.g. **FRONTEND**, **BACKEND**, **TOOLING** — each with its own `<h2>` heading in `font-silkscreen text-y2k-cyan` before its grid of bars.
+  </Step>
+</Steps>
+
+<Tip>
+  Keep skill labels short enough to fit on a single line at the `font-vt323` size used by the HP bar. Labels over ~20 characters may wrap or overflow depending on viewport width. Abbreviate where necessary (e.g. `"CSS / Tailwind"` instead of `"CSS and Tailwind CSS"`).
+</Tip>

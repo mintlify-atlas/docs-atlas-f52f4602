@@ -1,0 +1,65 @@
+---
+title: "Retro Cosmic Arcade: Y2K Portfolio SPA Built with React"
+sidebarTitle: "Introduction"
+description: "Retro Cosmic Arcade is a Y2K-aesthetic personal portfolio SPA built with React 18, Vite, React Router 6, Framer Motion, and Tailwind CSS."
+---
+
+Retro Cosmic Arcade is a single-page application portfolio that channels the garish, neon-soaked energy of late-1990s and early-2000s web design — blinking marquees, CRT scanline overlays, chunky pixel borders, and a deep-space color palette — while running entirely on a modern React 18 stack. This page introduces the project's goals, philosophy, technology choices, and the key features that make it feel like a long-lost GeoCities page that somehow learned React.
+
+## The Y2K Aesthetic Philosophy
+
+The visual language of the internet circa 1999–2002 was defined by constraints: low-resolution screens, limited color palettes, bitmapped fonts, and a sense that every possible pixel should be filled. Retro Cosmic Arcade embraces those constraints deliberately — not as a limitation but as a design system. The dark cosmic background (`#060010`), acid-cyan glows, magenta highlights, and lime-green health bars are all intentional callbacks to the era of hit counters, guestbooks, and `<marquee>` tags.
+
+Unlike true retro sites, the project achieves this look through modern tooling: Tailwind CSS utility classes, Framer Motion animations, and a component architecture that keeps the codebase maintainable while the UI looks delightfully chaotic.
+
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| UI library | React 18 |
+| Build tool | Vite |
+| Routing | React Router 6 (`react-router-dom` v6.30.4) |
+| Animation | Framer Motion |
+| Styling | Tailwind CSS + custom Y2K tokens |
+| Fonts | Inter, Major Mono Display, Silkscreen, VT323 (Google Fonts) |
+| Deployment target | Any static file host |
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Hash-Based Routing" icon="route">
+    Every page is a standalone HTML file. React Router 6 runs inside each page using hash-based routing, making the entire site deployable to GitHub Pages, Netlify, Vercel, or any static CDN with zero server configuration.
+  </Card>
+  <Card title="Y2K Design System" icon="palette">
+    A cohesive set of custom Tailwind color tokens (`y2k-cyan`, `y2k-magenta`, `y2k-lime`, `y2k-black`, `y2k-panel`) and utility classes (`.scanlines`, `.chrome-bg`, `.pixel-border-*`) encode the retro aesthetic into reusable primitives.
+  </Card>
+  <Card title="CRT Scanline Overlay" icon="tv">
+    A full-viewport `.scanlines` CSS overlay simulates a cathode-ray tube effect. The overlay is toggled at runtime via the Footer component, letting visitors switch the effect on or off.
+  </Card>
+  <Card title="Retro UI Components" icon="puzzle-piece">
+    Eight purpose-built components — `ChromeButton`, `CursorTrail`, `HitCounter`, `MarqueeTicker`, `PixelHPBar`, `Polaroid`, `WebringNav`, and `Footer` — replicate iconic Y2K UI patterns as first-class React components.
+  </Card>
+  <Card title="Cursor Trail" icon="arrow-pointer">
+    A canvas- or DOM-based cursor trail rendered by the `CursorTrail` component adds a sparkle effect reminiscent of early-2000s personal homepages and Flash intros.
+  </Card>
+  <Card title="Pixel HP Bar" icon="heart">
+    `PixelHPBar` renders an RPG-style health or skill bar using pixel-art styling, used throughout the Skills/Stats page to represent proficiency levels in a uniquely on-brand way.
+  </Card>
+</CardGroup>
+
+## Navigation
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Clone the repo, install dependencies, start the Vite dev server, and have the site running locally in under two minutes.
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/getting-started/project-structure">
+    Understand the multi-page HTML layout, the `components/` directory, and how Vite bundles assets for static hosting.
+  </Card>
+  <Card title="Routing" icon="route" href="/architecture/routing">
+    Deep dive into how `window.__STATIC_PAGE_ROUTE__` and hash-based React Router work together across seven static HTML entry points.
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/architecture/styling">
+    Explore the Y2K design token system, pixel border utilities, CRT effect classes, and the custom Tailwind configuration.
+  </Card>
+</CardGroup>

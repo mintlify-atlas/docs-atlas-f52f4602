@@ -1,0 +1,214 @@
+---
+title: "Y2K Styling System: Tailwind, Tokens, and CRT Effects"
+sidebarTitle: "Styling"
+description: "Explore Retro Cosmic Arcade's Tailwind design system: Y2K color tokens, pixel border utilities, CRT scanline overlay, and chrome bevel classes."
+---
+
+Retro Cosmic Arcade's visual identity is built on a tightly scoped set of custom Tailwind tokens and utility classes that encode the Y2K aesthetic into reusable, composable primitives. Every color, border style, and effect has a named class so components stay declarative and the theme can be updated from a single source of truth. This page documents each layer of the styling system, from raw color values to animated CRT overlays.
+
+## Custom Color Tokens
+
+The palette is deliberately limited — seven tokens cover everything from the void-of-space background to the neon accents that define the retro look. All tokens are registered as Tailwind theme extensions so they are available as `bg-y2k-*`, `text-y2k-*`, `border-y2k-*`, and so on.
+
+| Token | Hex | Role |
+|---|---|---|
+| `y2k-cyan` | `#4dffff` | Primary accent — link hovers, active nav items, cursor trail |
+| `y2k-magenta` | `#ff4ad8` | Secondary accent — selection highlight, hover glows, warnings |
+| `y2k-lime` | `#adff2f` | Tertiary accent — HP bars, success states, pixel borders |
+| `y2k-black` | `#060010` | Body background — deep cosmic near-black |
+| `y2k-panel` | `#150826` | Panel and card backgrounds — slightly lighter than the body |
+| `y2k-silver` | `#d4d0e8` | Default text color — cool lavender-tinted white |
+| `y2k-darkSilver` | `#6b6480` | Muted/secondary text, disabled states |
+
+```css
+/* Example: using color tokens in Tailwind utility classes */
+.my-panel {
+  @apply bg-y2k-panel text-y2k-silver border-y2k-cyan;
+}
+```
+
+<Tip>
+  The three accent colors — cyan, magenta, and lime — map directly to the additive primary colors of a CRT phosphor display, reinforcing the monitor-screen metaphor at the design-language level.
+</Tip>
+
+## Global Base Styles
+
+Several baseline styles are applied globally to establish the Y2K atmosphere before any component renders:
+
+```css
+/* Body: cosmic background + crosshair cursor */
+body {
+  background-color: #060010; /* y2k-black */
+  cursor: crosshair;
+  overflow-x: hidden;
+}
+
+/* Text selection highlight */
+::selection {
+  background-color: #ff4ad8; /* y2k-magenta */
+  color: #060010;
+}
+```
+
+The `crosshair` cursor is a direct reference to late-1990s gaming sites and Flash portals where crosshair cursors were a common power-user signal. The magenta selection highlight ensures even text selection feels on-brand.
+
+## Pixel Border Utility Classes
+
+Three pixel-border classes wrap content in a chunky, low-resolution outline that evokes the border styles common in early web design tools like FrontPage and Dreamweaver. Each applies a `box-shadow`-based technique to avoid adding box-model width:
+
+```css
+/* Cyan pixel border */
+.pixel-border-cyan {
+  box-shadow:
+    0 0 0 2px #060010,
+    0 0 0 4px #4dffff;
+}
+
+/* Lime pixel border */
+.pixel-border-lime {
+  box-shadow:
+    0 0 0 2px #060010,
+    0 0 0 4px #adff2f;
+}
+
+/* Magenta pixel border */
+.pixel-border-magenta {
+  box-shadow:
+    0 0 0 2px #060010,
+    0 0 0 4px #ff4ad8;
+}
+```
+
+Apply them directly to any element:
+
+```jsx
+<div className="pixel-border-cyan p-4 bg-y2k-panel">
+  Bordered content
+</div>
+```
+
+## Inset Bevel (`.inset-bevel`)
+
+The `.inset-bevel` class replicates the inset depression effect used heavily in Win98-era dialog boxes and form fields. It uses layered `box-shadow` values to create a dark top-left edge and a lighter bottom-right edge:
+
+```css
+.inset-bevel {
+  box-shadow:
+    inset 2px 2px 0px #060010,
+    inset -2px -2px 0px #6b6480;
+}
+```
+
+Use it on panels, text inputs, and content areas that should appear "pressed into" the surface.
+
+## Chrome Bevel Background (`.chrome-bg`)
+
+`.chrome-bg` reproduces the raised 3D button or window-chrome look from Windows 95/98. It uses an outset `box-shadow` pair — a bright edge on top-left and a dark edge on bottom-right — to simulate a convex surface catching light:
+
+```css
+.chrome-bg {
+  background-color: #d4d0e8; /* y2k-silver */
+  box-shadow:
+    inset -2px -2px 0px #6b6480,
+    inset 2px 2px 0px #ffffff;
+}
+```
+
+This class is used by the `ChromeButton` component to render buttons that look like genuine Win98 UI widgets.
+
+## CRT Scanline Overlay (`.scanlines`)
+
+The `.scanlines` class applies a full-viewport, fixed-position overlay that simulates the horizontal scan lines of a cathode-ray tube monitor:
+
+```css
+.scanlines::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  z-index: 9999;
+}
+```
+
+The overlay uses `pointer-events: none` so it does not interfere with click or hover interactions. It is layered at `z-index: 9999` to sit above all content.
+
+The `.scanlines` class is toggled at runtime by the `Footer` component, allowing visitors to enable or disable the effect:
+
+```jsx
+// Footer component toggles the class on <body> or a wrapper element
+document.body.classList.toggle("scanlines");
+```
+
+<Info>
+  The `pointer-events: none` rule on `.scanlines::after` is critical — without it, the overlay would block all mouse interactions on the page. If you customise the overlay, always preserve this rule.
+</Info>
+
+## Typography
+
+Four fonts are loaded from Google Fonts and used for distinct purposes:
+
+| Font | Usage |
+|---|---|
+| **Inter** | Body text — clean, modern, readable at small sizes |
+| **Major Mono Display** | Display headings — monospaced, technical feel |
+| **Silkscreen** | Labels, badges, UI chrome — authentic pixel/bitmap aesthetic |
+| **VT323** | Terminal-style text, hit counters, status readouts |
+
+```css
+/* Google Fonts import (from main.css) */
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@400;600
+  &family=Major+Mono+Display
+  &family=Silkscreen:wght@400;700
+  &family=VT323&display=swap";
+```
+
+## Applying the Design System
+
+<Tabs>
+  <Tab title="Color tokens">
+    ```jsx
+    // Panel with y2k-panel background and cyan border
+    <div className="bg-y2k-panel text-y2k-silver pixel-border-cyan p-6">
+      <h2 className="font-['Silkscreen'] text-y2k-cyan">SYSTEM STATUS</h2>
+      <p className="text-y2k-darkSilver">All systems nominal.</p>
+    </div>
+    ```
+  </Tab>
+  <Tab title="Pixel borders">
+    ```jsx
+    // Three border variants side by side
+    <div className="flex gap-4">
+      <div className="pixel-border-cyan p-3">CYAN</div>
+      <div className="pixel-border-lime p-3">LIME</div>
+      <div className="pixel-border-magenta p-3">MAGENTA</div>
+    </div>
+    ```
+  </Tab>
+  <Tab title="Chrome button">
+    ```jsx
+    // Win98-style bevel button
+    <button className="chrome-bg px-4 py-2 font-['Silkscreen'] text-y2k-black">
+      EXECUTE
+    </button>
+    ```
+  </Tab>
+  <Tab title="CRT overlay">
+    ```jsx
+    // Toggle scanlines from the Footer component
+    function toggleScanlines() {
+      document.body.classList.toggle("scanlines");
+    }
+
+    <button onClick={toggleScanlines}>
+      [ TOGGLE CRT ]
+    </button>
+    ```
+  </Tab>
+</Tabs>

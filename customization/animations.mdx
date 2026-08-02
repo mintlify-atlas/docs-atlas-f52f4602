@@ -1,0 +1,219 @@
+---
+title: "Animations and Motion in Retro Cosmic Arcade"
+sidebarTitle: "Animations"
+description: "Learn how CSS keyframe animations and Framer Motion power every hover, drag, and particle effect in Retro Cosmic Arcade, and how to customize or disable them."
+---
+
+Retro Cosmic Arcade uses two complementary animation layers: CSS keyframe animations registered through Tailwind for repeating ambient effects, and Framer Motion for all interactive gesture-driven motion. This page documents every animation in the project, the exact values used, and how to override, extend, or disable them.
+
+<Note>
+  Framer Motion is bundled as a local proxy module. Components import it as `m` (for the `motion` factory) or named exports from `../assets/proxy.js` rather than directly from the `framer-motion` package. If you add new animated components, use the same import path to avoid bundling a second copy of the library.
+</Note>
+
+---
+
+## CSS Animations
+
+Two custom keyframe animations are defined in `assets/main.css` and exposed as Tailwind utility classes via the `theme.extend.animation` and `theme.extend.keyframes` config blocks.
+
+### `animate-blink`
+
+A hard-cut opacity blink using `step-end` timing, which produces an instant on/off flash rather than a smooth fade. Used for the active navigation indicator dot to give it a classic blinking-cursor feel.
+
+```css
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+```
+
+**Customisation:** Change `1s` to a faster value (e.g. `0.5s`) for a more frantic blink, or swap `step-end` for `linear` to get a smooth pulse instead of a hard cut.
+
+### `animate-marquee`
+
+A continuous horizontal scroll that moves an element from the right edge of its container all the way to the left. Used by the `MarqueeTicker` component to produce a scrolling news-ticker banner.
+
+```css
+@keyframes marquee {
+  0%   { transform: translate(100%);  }
+  100% { transform: translate(-100%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+```
+
+**Customisation:** Increase the duration (e.g. `40s`) to slow the scroll down, or decrease it (e.g. `10s`) to speed it up. Because the ticker element is wrapped in `overflow-hidden`, no clipping CSS changes are needed when adjusting the speed.
+
+---
+
+## Framer Motion Animations
+
+### ChromeButton
+
+The `ChromeButton` component wraps a `<button>` in a `motion.button` (imported as `m.button`) and applies micro-interaction scale transforms on hover and tap.
+
+| Prop         | Value  | Effect                                               |
+|--------------|--------|------------------------------------------------------|
+| `whileHover` | `{ scale: 1.05 }` | Button grows slightly when the cursor enters |
+| `whileTap`   | `{ scale: 0.95 }` | Button shrinks on press, simulating physical click |
+
+These values intentionally stay subtle (±5%) to complement the bevel border's own press animation without doubling the visual feedback.
+
+### CursorTrail
+
+The `CursorTrail` component tracks `mousemove` events and renders up to 16 trailing particles using `AnimatePresence`. Each particle is a 2×2px cyan square with a glow shadow that fades out as it ages.
+
+```js
+// Per-particle motion props (from CursorTrail source)
+initial:    { opacity: 0.8, scale: 1   }
+animate:    { opacity: 0,   scale: 0.2 }
+exit:       { opacity: 0               }
+transition: { duration: 0.5, ease: 'easeOut' }
+```
+
+Each particle starts at 80% opacity and full scale, then shrinks to 20% of its size while fading to invisible over 500 ms with an ease-out curve. The `easeOut` timing means the fade starts quickly and decelerates, making the trail feel energetic rather than mechanical.
+
+<Tip>
+  `AnimatePresence` is already imported in `CursorTrail` and wraps the particle list. You can reuse the same pattern anywhere you need enter/exit transitions on a dynamic list — wrap the list in `<AnimatePresence>` and add `initial`, `animate`, and `exit` props to each item. Items that leave the array will play their `exit` animation before unmounting.
+</Tip>
+
+### Polaroid
+
+The `Polaroid` component is a fully draggable card. Framer Motion handles the drag physics, hover scale, and the initial rotation that staggers cards at different angles.
+
+| Prop              | Value                                            | Effect                                                       |
+|-------------------|--------------------------------------------------|--------------------------------------------------------------|
+| `drag`            | `true`                                           | Enables free 2D drag on the card                             |
+| `dragConstraints` | `{ left: -50, right: 50, top: -50, bottom: 50 }` | Limits drag travel to 50px in any direction from rest position |
+| `whileHover`      | `{ scale: 1.05, zIndex: 50 }`                    | Card lifts above siblings on hover                           |
+| `whileDrag`       | `{ scale: 1.1, zIndex: 50, rotate: 0 }`          | Card scales up and snaps level while being dragged            |
+| `initial`         | `{ rotate: rotation }`                           | Card mounts at a random `rotation` angle passed as a prop    |
+
+---
+
+## Customising Framer Motion Props
+
+### Override ChromeButton Scale
+
+`ChromeButton` spreads extra props onto its `motion.button`, so you can override the defaults by passing your own `whileHover` and `whileTap`:
+
+```jsx
+// More pronounced hover, no tap animation
+<ChromeButton whileHover={{ scale: 1.12 }} whileTap={{}}>
+  LAUNCH
+</ChromeButton>
+```
+
+### Change Polaroid Drag Constraints
+
+Pass a new `dragConstraints` object to allow wider (or narrower) movement:
+
+```jsx
+// Wider drag range — cards can move 120px in any direction
+<Polaroid
+  title="My Project"
+  desc="A cool thing I built."
+  rotation={-5}
+  dragConstraints={{ left: -120, right: 120, top: -120, bottom: 120 }}
+/>
+```
+
+Change the `rotation` prop to control the initial tilt angle. Positive values tilt clockwise, negative values tilt counter-clockwise.
+
+---
+
+## Disabling Animations
+
+<Tabs>
+  <Tab title="ChromeButton">
+    Pass empty objects for both gesture props to neutralise all scale motion:
+
+    ```jsx
+    <ChromeButton whileHover={{}} whileTap={{}}>
+      STATIC BUTTON
+    </ChromeButton>
+    ```
+  </Tab>
+  <Tab title="Polaroid">
+    Set `drag` to `false` to lock the card in place. You can also clear the hover and drag scale by passing empty gesture objects:
+
+    ```jsx
+    <Polaroid
+      title="Locked Card"
+      desc="Not draggable."
+      rotation={0}
+      drag={false}
+      whileHover={{}}
+      whileDrag={{}}
+    />
+    ```
+  </Tab>
+  <Tab title="CSS animations">
+    Remove the `animate-blink` or `animate-marquee` class from the element, or override with `animation: none` in a local style:
+
+    ```jsx
+    {/* Remove blink from a nav indicator */}
+    <span className="block w-2 h-2 bg-y2k-cyan" /> {/* no animate-blink */}
+
+    {/* Or override inline */}
+    <span className="animate-blink" style={{ animation: 'none' }} />
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Adding New Framer Motion Animations
+
+Import `motion` from the project's proxy module and apply `initial`, `animate`, and `transition` props to any HTML element:
+
+```jsx
+import { m as motion } from '../assets/proxy.js';
+
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4, ease: 'easeOut' }}
+>
+  Fade-in content
+</motion.div>
+```
+
+<Steps>
+  <Step title="Choose your target element">
+    Replace `motion.div` with any HTML tag prefixed with `motion.` — `motion.section`, `motion.li`, `motion.img`, etc. Framer Motion wraps it transparently.
+  </Step>
+  <Step title="Define initial and animate states">
+    `initial` is the state the element mounts in. `animate` is the state it transitions to. Any CSS-compatible property (opacity, scale, x, y, rotate, etc.) can be interpolated.
+  </Step>
+  <Step title="Tune the transition">
+    `duration` is in seconds. Common `ease` values are `'easeOut'` (fast start, slow finish — good for entrances), `'easeIn'` (good for exits), and `'linear'` (good for continuous loops). For spring physics, replace `ease` with `type: 'spring'` and add `stiffness` / `damping` values.
+  </Step>
+  <Step title="Add exit animations with AnimatePresence">
+    If the element can unmount (e.g. a modal, a list item, or a notification), wrap it in `<AnimatePresence>` and add an `exit` prop. Framer Motion will hold the element in the DOM, play the exit animation, then remove it.
+
+    ```jsx
+    import { AnimatePresence, m as motion } from '../assets/proxy.js';
+
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          key="panel"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          Content
+        </motion.div>
+      )}
+    </AnimatePresence>
+    ```
+  </Step>
+</Steps>

@@ -1,0 +1,181 @@
+---
+title: "Building and Deploying Retro Cosmic Arcade"
+sidebarTitle: "Build"
+description: "How Vite builds Retro Cosmic Arcade's multi-page output, what lands in dist/, and how to deploy to GitHub Pages, Netlify, Vercel, and more."
+---
+
+Retro Cosmic Arcade uses Vite as its build tool. A single `npm run build` command compiles the React app, processes Tailwind CSS, splits the JavaScript into cacheable chunks, and writes every HTML entry point with pre-configured `<link rel="modulepreload">` tags into the `dist/` directory. Because the project relies on hash routing, the resulting `dist/` folder can be uploaded directly to any static file host with zero additional server configuration.
+
+## Running the Build
+
+```bash
+npm run build
+```
+
+Vite reads from the project root, resolves all entry points, and outputs the production bundle:
+
+```
+dist/
+├── index.html
+├── pages/
+│   ├── Home.html
+│   ├── About.html
+│   ├── Projects.html
+│   ├── Skills.html
+│   ├── Writing.html
+│   ├── CaseStudies.html
+│   └── Contact.html
+├── assets/
+│   ├── main.js          # Hashed filename in production (e.g. main.a1b2c3d4.js)
+│   ├── main.css
+│   ├── jsx-runtime.js
+│   └── proxy.js
+└── components/
+    ├── ChromeButton.js
+    ├── CursorTrail.js
+    ├── Footer.js
+    ├── HitCounter.js
+    ├── MarqueeTicker.js
+    ├── PixelHPBar.js
+    ├── Polaroid.js
+    └── WebringNav.js
+```
+
+## Asset Bundling and Module Preloading
+
+Vite splits the compiled JavaScript into four chunks to optimise caching:
+
+| Asset | Contents | Cache strategy |
+|---|---|---|
+| `main.js` | React app bundle — page components, routing, Framer Motion animations | Busted on every deploy (content-hashed filename) |
+| `jsx-runtime.js` | React JSX runtime | Long-lived cache — only changes when React version changes |
+| `proxy.js` | Framer Motion bundle | Long-lived cache — only changes when Framer Motion version changes |
+| `main.css` | Compiled Tailwind CSS + custom tokens + Google Fonts import | Busted on every deploy |
+
+Every HTML entry point in `dist/` declares `<link rel="modulepreload">` for each chunk:
+
+```html
+<link rel="modulepreload" crossorigin href="./assets/jsx-runtime.js">
+<link rel="modulepreload" crossorigin href="./components/WebringNav.js">
+<link rel="modulepreload" crossorigin href="./components/Footer.js">
+<link rel="modulepreload" crossorigin href="./assets/proxy.js">
+<!-- ... and so on for every component -->
+```
+
+`modulepreload` instructs the browser to fetch, parse, and compile each JavaScript module before it is needed. This eliminates the waterfall of sequential module fetches that would otherwise occur when the React app begins rendering and starts importing its dependencies.
+
+## Previewing the Production Build
+
+Before deploying, verify the production build locally with Vite's preview server:
+
+```bash
+npm run preview
+```
+
+This serves `dist/` at `http://localhost:4173` as a static site — the same way a production host would serve it. Use this step to confirm that hash routing works, all assets load, and no paths are broken before pushing to your host.
+
+<Note>
+  Hash-based routing means that **no server-side rewrite rules are needed** on any static host. When a user visits `example.com/about`, the server returns `pages/About.html`. That page's inline script then appends `#/about` to the hash and React Router handles the rest entirely in the browser. There is no risk of a 404 on a page refresh or a direct link.
+</Note>
+
+## Deployment Workflows
+
+<Steps>
+  <Step title="Build the project">
+    Run the production build locally to generate the `dist/` directory.
+
+    ```bash
+    npm run build
+    ```
+  </Step>
+
+  <Step title="Choose a static host">
+    Select a deployment target. All of the following work out of the box with zero extra configuration:
+
+    <CardGroup cols={2}>
+      <Card title="GitHub Pages" icon="github">
+        Push `dist/` to the `gh-pages` branch of your repository, or use the `gh-pages` npm package to automate it.
+      </Card>
+      <Card title="Netlify" icon="bolt">
+        Drag and drop the `dist/` folder onto the Netlify dashboard, or connect your repository and set the build command to `npm run build` with the publish directory set to `dist`.
+      </Card>
+      <Card title="Vercel" icon="triangle">
+        Connect your repository on Vercel. It auto-detects the Vite framework, sets the build command to `vite build`, and deploys `dist/` automatically on every push.
+      </Card>
+      <Card title="Cloudflare Pages" icon="cloud">
+        Create a new Cloudflare Pages project, set the build command to `npm run build`, and the output directory to `dist`. Cloudflare deploys on every push to your main branch.
+      </Card>
+    </CardGroup>
+  </Step>
+
+  <Step title="Deploy to GitHub Pages (example)">
+    If you are using GitHub Pages, the simplest automated workflow uses the `gh-pages` package:
+
+    ```bash
+    # Install gh-pages as a dev dependency (one-time setup)
+    npm install --save-dev gh-pages
+    ```
+
+    Add a `deploy` script to `package.json`:
+
+    ```json
+    {
+      "scripts": {
+        "build": "vite build",
+        "preview": "vite preview",
+        "deploy": "gh-pages -d dist"
+      }
+    }
+    ```
+
+    Then deploy with:
+
+    ```bash
+    npm run build && npm run deploy
+    ```
+
+    The `gh-pages` package pushes the contents of `dist/` to the `gh-pages` branch and GitHub Pages serves it at `https://<username>.github.io/<repo>/`.
+  </Step>
+
+  <Step title="Deploy to Netlify (drag-and-drop)">
+    For a one-click deploy without any CLI tooling:
+
+    1. Run `npm run build` locally.
+    2. Open [app.netlify.com](https://app.netlify.com) and log in.
+    3. Drag the `dist/` folder from your file explorer onto the Netlify dashboard drop zone.
+    4. Netlify assigns a random subdomain (e.g. `cosmic-purple-123.netlify.app`) and the site is live within seconds.
+
+    <Tip>
+      Netlify's drag-and-drop deploy is stateless — each drag creates a new independent deploy that does not affect your existing Netlify sites or git integration.
+    </Tip>
+  </Step>
+
+  <Step title="Verify the deployment">
+    After deploying, test the following scenarios to confirm everything works:
+
+    - **Home page loads** — visit the root URL and confirm the React app mounts.
+    - **Direct navigation** — visit a sub-page URL directly (e.g. `/about` or `/contact`) and confirm it loads without a 404.
+    - **Page refresh** — refresh any page and confirm the content reloads correctly.
+    - **Back/forward navigation** — click through several pages, then use the browser Back and Forward buttons.
+    - **Asset loading** — open DevTools → Network and confirm all JS, CSS, and font files load with HTTP 200.
+  </Step>
+</Steps>
+
+## Environment and Build Configuration
+
+<Info>
+  Vite reads its build configuration from `vite.config.js` (or `vite.config.ts`) in the project root. The default configuration suffices for this project — no custom plugins, aliases, or environment variable handling are required. If you add pages or move the `dist/` output directory, update `vite.config.js` accordingly.
+</Info>
+
+Useful Vite build flags for CI and debugging:
+
+```bash
+# Build with source maps for production debugging
+vite build --sourcemap
+
+# Build and report bundle size
+vite build --reporter verbose
+
+# Override the output directory
+vite build --outDir build
+```

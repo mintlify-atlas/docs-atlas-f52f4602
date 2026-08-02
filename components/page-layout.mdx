@@ -1,0 +1,91 @@
+---
+title: "Page Layout Pattern in Retro Cosmic Arcade"
+sidebarTitle: "Page Layout"
+description: "Covers the conventional full-page layout stack used across every route: WebringNav, a centred content area, CursorTrail overlay, and Footer."
+---
+
+Retro Cosmic Arcade has **no single dedicated `<Layout>` wrapper component**. Instead, every page follows a consistent four-layer convention assembled directly in each route component. Understanding this pattern is essential before adding or customising any page — it ensures the webring navigation, cursor effect, and footer remain uniform across the entire site.
+
+## The Layout Stack
+
+Every page in the app composes the same four layers in the same order:
+
+<Steps>
+  <Step title="WebringNav (top)">
+    Renders the retro webring navigation bar that spans the full viewport width. It displays **◄ PREV** and **NEXT ►** links to adjacent routes, the current page name in blinking lime text, and **INDEX** / **RANDOM** utility links at the bottom. Always place this as the very first element returned.
+  </Step>
+  <Step title="Main content area">
+    A centred container that constrains content width and adds horizontal padding. Use `max-w-5xl mx-auto px-4` as the wrapping `<main>` or `<div>`. All page-specific components, headings, and body copy go here.
+  </Step>
+  <Step title="CursorTrail (fixed overlay)">
+    A fixed-position overlay component that renders the star/pixel trail following the user's cursor. Because it is `position: fixed`, it can be placed anywhere in the JSX tree — but by convention it appears after the main content block.
+  </Step>
+  <Step title="Footer (bottom)">
+    The `<Footer />` component rendered last. It contains the 88×31 retro badges and the CRT scanline toggle. No additional wrapper or margin is needed — the Footer itself applies `mt-16`.
+  </Step>
+</Steps>
+
+## Minimal Page Example
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+
+export default function ExamplePage() {
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-8">
+          PAGE TITLE
+        </h1>
+
+        {/* Your page content here */}
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+<Tip>
+  `<CursorTrail />` is a fixed overlay and only needs to be mounted **once** in the component tree. Consider hoisting it to the app root (e.g. inside the router's root layout or `App.jsx`) rather than repeating it on every page. Mounting it multiple times won't break anything, but it will stack multiple `mousemove` listeners unnecessarily.
+</Tip>
+
+## Global Body Background
+
+The deep-space background colour `#060010` is set globally in `assets/main.css` on the `body` element — **you do not need to apply it per-page**. All page components can assume a near-black purple background is already present.
+
+```css
+/* assets/main.css */
+body {
+  background-color: #060010;
+}
+```
+
+## Route-to-HTML-Shell Mapping
+
+Each route is backed by a thin HTML shell that sets `window.__STATIC_PAGE_ROUTE__` and preloads the shared component bundle. The React app reads this variable to determine which route to render without a server.
+
+<CardGroup cols={2}>
+  <Card title="How static routing works" icon="route">
+    Each `.html` file sets `window.__STATIC_PAGE_ROUTE__` to a path string (e.g. `"/about"`). The React bundle reads this on boot and initialises React Router at the correct route. The HTML shell also redirects to a hash URL (`#/about`) for compatibility with static hosts that don't support client-side routing.
+  </Card>
+  <Card title="Shared module preloads" icon="bolt">
+    Every HTML shell preloads the same set of component modules: `WebringNav.js`, `Footer.js`, `CursorTrail.js`, `HitCounter.js`, `MarqueeTicker.js`, `Polaroid.js`, `ChromeButton.js`, and `PixelHPBar.js`. All pages therefore have instant access to all components without additional lazy loading.
+  </Card>
+</CardGroup>
+
+## Conventions at a Glance
+
+| Layer | Component | Tailwind / Notes |
+|---|---|---|
+| Top bar | `<WebringNav />` | Full-width, `border-b-2 border-y2k-cyan`, `font-silkscreen` |
+| Content | `<main>` wrapper | `max-w-5xl mx-auto px-4` |
+| Overlay | `<CursorTrail />` | `position: fixed`, mount once at root |
+| Bottom | `<Footer />` | `mt-16`, includes badges and scanline toggle |
+| Body bg | `assets/main.css` | `background-color: #060010` (global) |

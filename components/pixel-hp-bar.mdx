@@ -1,0 +1,97 @@
+---
+title: "PixelHPBar: Pixel-Art Skill and Progress Bar"
+sidebarTitle: "PixelHPBar"
+description: "A 20-segment pixel-art progress bar inspired by RPG HP bars. Accepts a label and a 0–100 percentage to render glowing lime filled segments."
+---
+
+`PixelHPBar` renders a horizontal progress bar divided into 20 discrete segments, styled to look like the HP (hit-point) bar in a classic 8-bit or 16-bit RPG. Filled segments glow neon lime; empty segments are dark. A text label sits on the left and the numeric percentage floats right-aligned. The component is ideal for skills sections, profile pages, or any context where you want to visualize a proficiency level in a retro-game style.
+
+---
+
+## Props
+
+<ParamField path="label" type="string" required>
+  The skill or category name displayed to the left of the bar. Rendered in `text-y2k-cyan font-vt323 text-xl` with a fixed `w-32` width, so labels longer than roughly 10–12 characters may wrap or overflow. Keep labels short and uppercase for best results.
+</ParamField>
+
+<ParamField path="percentage" type="number" required>
+  An integer between `0` and `100` (inclusive) representing how full the bar should be. The filled segment count is computed as `Math.round(percentage / 100 * 20)`. The raw percentage value is also displayed as text at the right end of the bar row.
+</ParamField>
+
+---
+
+## Usage
+
+### Single bar
+
+```jsx
+import { PixelHPBar } from "@/components/PixelHPBar";
+
+function SkillEntry() {
+  return <PixelHPBar label="React" percentage={95} />;
+}
+```
+
+### Skills section with multiple bars
+
+```jsx
+import { PixelHPBar } from "@/components/PixelHPBar";
+
+function SkillsGrid() {
+  return (
+    <div className="flex flex-col gap-3">
+      <PixelHPBar label="React"      percentage={95} />
+      <PixelHPBar label="TypeScript" percentage={80} />
+      <PixelHPBar label="CSS"        percentage={90} />
+    </div>
+  );
+}
+```
+
+---
+
+## How it works
+
+The component calculates the number of filled segments with:
+
+```js
+const filledCount = Math.round(percentage / 100 * 20);
+```
+
+It then renders an `Array.from({ length: 20 })` array, mapping each index to a `<div>`. If the index is less than `filledCount`, the segment receives the filled style; otherwise it receives the empty style.
+
+### Segment styling
+
+| State    | Classes                                          |
+| -------- | ------------------------------------------------ |
+| Filled   | `bg-y2k-lime shadow-[0_0_5px_#adff2f]`          |
+| Empty    | `bg-[#111]`                                      |
+| Both     | `flex-1 mx-[1px]` (even sizing with small gaps)  |
+
+### Row layout
+
+| Element          | Classes                                                   |
+| ---------------- | --------------------------------------------------------- |
+| Outer row        | `flex items-center gap-4 font-vt323 text-xl`              |
+| Label            | `w-32 text-y2k-cyan`                                      |
+| Bar container    | `flex-grow flex border-2 border-y2k-darkSilver bg-black p-1 h-6` |
+| Percentage label | `w-12 text-right text-y2k-silver`                         |
+
+---
+
+## Styling notes
+
+- Filled segment color is `y2k-lime` (`#adff2f`). The accompanying `shadow-[0_0_5px_#adff2f]` glow effect uses an arbitrary Tailwind shadow value — ensure this file is included in Tailwind's `content` paths to avoid purging.
+- Label width is hard-coded at `w-32`. If your labels are consistently shorter, you can pass them in all-caps to match the UI language of the rest of the component library.
+
+---
+
+## Caveats
+
+<Warning>
+  The `percentage` prop must be a number between `0` and `100`. Values below `0` will produce `0` filled segments (the bar appears empty), but values above `100` will call `Math.round` on a result greater than `20`, producing more filled segments than there are cells and breaking the layout. Clamp your data before passing it as a prop.
+</Warning>
+
+<Note>
+  Segment count is always **20** — the granularity of the bar is therefore 5% per segment. Percentages that are not multiples of 5 are rounded to the nearest segment via `Math.round`, so a value of `92` and `93` both render 18 filled segments (90%), while `93.5` and above rounds to 19 (95%).
+</Note>

@@ -1,0 +1,101 @@
+---
+title: "ChromeButton: Windows 98-Style Motion Button"
+sidebarTitle: "ChromeButton"
+description: "A Framer Motion button with Win98 chrome bevel styling, hover scale, and tap feedback. Accepts all motion.button props via spread."
+---
+
+`ChromeButton` is a Framer Motion–powered `<button>` element styled to resemble the beveled, raised buttons found in Windows 98 dialog boxes. It provides subtle hover and tap scale animations out of the box and forwards every extra prop directly to the underlying `motion.button` element, so the full Framer Motion animation API is available without any wrapper component.
+
+---
+
+## Props
+
+<ParamField path="children" type="ReactNode" required>
+  The button label or content. Rendered as the inner child of `motion.button`.
+</ParamField>
+
+<ParamField path="className" type="string" default='""'>
+  Additional Tailwind or custom CSS classes appended after the built-in `chrome-bg font-silkscreen px-4 py-1 text-sm uppercase tracking-wider transition-transform` class string.
+</ParamField>
+
+<ParamField path="...rest" type="motion.button props">
+  Any prop valid on a Framer Motion `motion.button` element — `onClick`, `disabled`, `animate`, `variants`, `whileHover`, `whileTap`, `aria-*`, and so on. The component spreads `...rest` directly onto `motion.button`, so built-in `whileHover` and `whileTap` values can be overridden if needed.
+</ParamField>
+
+---
+
+## Usage
+
+### Basic button
+
+```jsx
+import { ChromeButton } from "@/components/ChromeButton";
+
+function LaunchPad() {
+  return (
+    <ChromeButton onClick={() => console.log("Launched!")}>
+      LAUNCH GAME
+    </ChromeButton>
+  );
+}
+```
+
+### Custom className
+
+Append extra classes to adjust sizing, color, or spacing while keeping the chrome style:
+
+```jsx
+<ChromeButton className="w-full text-base">
+  ENTER THE ARCADE
+</ChromeButton>
+```
+
+### Overriding Framer Motion props
+
+Because all extra props are spread onto `motion.button`, you can override the default scale values or add entirely new animation variants:
+
+```jsx
+<ChromeButton
+  whileHover={{ scale: 1.1, rotate: 2 }}
+  whileTap={{ scale: 0.9 }}
+  animate={{ opacity: 1 }}
+  initial={{ opacity: 0 }}
+>
+  POWER ON
+</ChromeButton>
+```
+
+---
+
+## Built-in animation values
+
+| Gesture       | Value            |
+| ------------- | ---------------- |
+| `whileHover`  | `scale: 1.05`    |
+| `whileTap`    | `scale: 0.95`    |
+
+---
+
+## Styling notes
+
+The `chrome-bg` CSS class is defined in the project's global stylesheet and applies a bevel gradient that mimics the Win98 button appearance:
+
+- **Raised state** — light top/left edges, dark bottom/right edges via `box-shadow` inset.
+- **Active state** — the inset shadow inverts to simulate a pressed-in effect (`:active` or Framer Motion `whileTap`).
+- **Font** — `font-silkscreen` renders text in the pixel-style Silkscreen typeface.
+- **Text** — forced `uppercase` with `tracking-wider` for that classic OS label feel.
+
+<Note>
+  `chrome-bg` is **not** a Tailwind utility class — it is a custom CSS class defined in the project's global CSS file. If you move `ChromeButton` to a different project, you must copy or recreate the `chrome-bg` rule.
+</Note>
+
+---
+
+## Dependencies
+
+- **Framer Motion** (`motion.button`, `whileHover`, `whileTap`) — must be installed as a peer dependency.
+- **Silkscreen** font — loaded via `font-silkscreen` Tailwind token.
+
+<Tip>
+  You can use `ChromeButton` as a drop-in replacement for a standard `<button>` in any form or interactive element. The Framer Motion scale animation is GPU-accelerated via CSS `transform`, so it is safe to use inside list renders and modals.
+</Tip>

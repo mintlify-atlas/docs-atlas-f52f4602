@@ -1,0 +1,135 @@
+---
+title: "Hash-Based Routing with React Router 6"
+sidebarTitle: "Routing"
+description: "How Retro Cosmic Arcade uses static HTML entry points, window.__STATIC_PAGE_ROUTE__, and React Router 6 hash routing across seven pages."
+---
+
+Retro Cosmic Arcade navigates between seven distinct pages using React Router 6 in hash-routing mode. Rather than relying on a single-page app shell and server-side URL rewriting, each route is backed by a real HTML file on disk. This page explains how the two halves of that strategy — static HTML entry points and React Router's hash-based `HashRouter` — fit together, and why it is the right choice for a site deployed to static hosting.
+
+## The Route Table
+
+The seven routes are defined as a JavaScript array inside `components/WebringNav.js`. The navigation component iterates over this array to render the site's navigation bar and to drive React Router's `<Link>` elements.
+
+```js
+const routes = [
+  { path: "/",             name: "HOME" },
+  { path: "/about",        name: "ABOUT" },
+  { path: "/projects",     name: "PROJECTS" },
+  { path: "/skills",       name: "STATS" },
+  { path: "/writing",      name: "JOURNAL" },
+  { path: "/case-studies", name: "DEEP DIVES" },
+  { path: "/contact",      name: "GUESTBOOK" }
+];
+```
+
+The `path` values correspond directly to React Router routes inside the app. The `name` values are the labels displayed in the navigation bar — notice that several routes use a thematic alias (e.g. `/skills` → "STATS", `/contact` → "GUESTBOOK") to reinforce the Y2K aesthetic.
+
+## Static HTML Entry Points
+
+Each route has a corresponding HTML file on disk:
+
+| Route | HTML file |
+|---|---|
+| `/` | `index.html` |
+| `/about` | `pages/About.html` |
+| `/projects` | `pages/Projects.html` |
+| `/skills` | `pages/Skills.html` |
+| `/writing` | `pages/Writing.html` |
+| `/case-studies` | `pages/CaseStudies.html` |
+| `/contact` | `pages/Contact.html` |
+
+When a user navigates directly to `/about` (e.g. by clicking a link shared externally or typing the URL), the static host returns `pages/About.html`. That file bootstraps the React app, sets `window.__STATIC_PAGE_ROUTE__`, and then the hash redirect kicks in before React Router mounts.
+
+## The Hash Redirect Script
+
+Every HTML file contains the following inline script in `<head>`. This script runs synchronously before the React bundle loads, ensuring React Router always receives a properly formatted hash URL.
+
+```html
+<script>
+  window.__STATIC_PAGE_ROUTE__ = "/";
+
+  (function () {
+    if (!window.location.hash || window.location.hash === "#") {
+      window.location.replace(
+        window.location.pathname +
+        window.location.search +
+        "#/"
+      );
+    }
+  })();
+</script>
+```
+
+**What it does, step by step:**
+
+1. `window.__STATIC_PAGE_ROUTE__` is set to the route string for that file (e.g. `"/"` for the home page, `"/about"` for the about page).
+2. The IIFE checks whether the current URL already has a non-empty hash. If not — which is true the first time a user lands on the page — it calls `window.location.replace()` to append `#/` to the URL.
+3. The browser reloads to the new URL (e.g. `https://example.com/about#/`). The React bundle now boots with a hash present.
+4. React Router's `HashRouter` reads the fragment after `#` and matches `/` against the route table, rendering the correct page component.
+
+<Note>
+  `window.location.replace()` is used intentionally instead of `window.location.assign()` or direct property assignment. `replace()` does not add an entry to the browser's history stack, so the user's Back button behaves naturally and does not cycle through the redirect.
+</Note>
+
+## How React Router 6 Consumes the Hash
+
+The React app mounts a `HashRouter` from `react-router-dom`. All `<Route>` declarations live inside it, so every URL fragment (`#/`, `#/about`, `#/projects`, etc.) is matched against the route table. When a user clicks a nav link, React Router updates the hash fragment — the browser does not request a new file from the server, so navigation is instant.
+
+```jsx
+import { HashRouter, Routes, Route } from "react-router-dom";
+
+// Inside the app root:
+<HashRouter>
+  <Routes>
+    <Route path="/"            element={<Home />} />
+    <Route path="/about"       element={<About />} />
+    <Route path="/projects"    element={<Projects />} />
+    <Route path="/skills"      element={<Skills />} />
+    <Route path="/writing"     element={<Writing />} />
+    <Route path="/case-studies" element={<CaseStudies />} />
+    <Route path="/contact"     element={<Contact />} />
+  </Routes>
+</HashRouter>
+```
+
+## Hash Routing vs. History Routing
+
+<Tabs>
+  <Tab title="Hash Routing (used here)">
+    **Pros**
+    - Works on any static file host with zero configuration.
+    - Deep links and refreshes never return a 404.
+    - No `_redirects`, `vercel.json`, or `.htaccess` rules required.
+    - Compatible with GitHub Pages, S3, Netlify drag-and-drop, and Cloudflare Pages.
+
+    **Cons**
+    - URLs contain a `#` fragment (e.g. `example.com/#/about`), which some consider less clean.
+    - The fragment is not sent to the server, so server-side rendering is not possible without extra tooling.
+    - Some analytics providers strip or mishandle the hash portion of URLs.
+  </Tab>
+  <Tab title="History Routing (alternative)">
+    **Pros**
+    - Clean URLs (e.g. `example.com/about`).
+    - Full SEO crawlability without fragment-based URLs.
+    - Compatible with server-side rendering frameworks.
+
+    **Cons**
+    - Requires a server or CDN rule to serve `index.html` for every non-asset URL.
+    - Direct navigation and page refresh return 404 on plain static hosts without configuration.
+    - More infrastructure to maintain (rewrite rules differ per host).
+  </Tab>
+</Tabs>
+
+## Deploying to Static Hosts
+
+Because hash routing means every navigation event is handled entirely in the browser, deploying to any of the following hosts requires no extra routing configuration:
+
+- **GitHub Pages** — push `dist/` to the `gh-pages` branch.
+- **Netlify** — drag and drop the `dist/` folder in the dashboard.
+- **Vercel** — connect the repository; Vercel auto-detects Vite and deploys `dist/`.
+- **Cloudflare Pages** — set the build command to `npm run build` and the output directory to `dist`.
+- **AWS S3 + CloudFront** — upload `dist/` and configure the bucket for static website hosting.
+
+<Warning>
+  If you switch from hash routing to React Router's `BrowserRouter`, you **must** add a server-side catch-all redirect rule on your host. Without it, any direct navigation to a sub-page (e.g. `example.com/about`) will return a 404 because no file named `about` exists in `dist/`.
+</Warning>

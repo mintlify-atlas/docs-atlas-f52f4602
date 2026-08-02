@@ -1,0 +1,92 @@
+---
+title: "HitCounter: Retro LCD Visitor Counter Display"
+sidebarTitle: "HitCounter"
+description: "A segmented LCD-style visitor counter that pads any number to 7 digits and renders each digit in an individual glowing green cell."
+---
+
+`HitCounter` recreates the classic "Visitor Counter" widget that adorned countless GeoCities and Angelfire pages in the late 1990s. It renders a horizontal row of individually framed LCD digit cells, each styled with a dark background and a faint lime-green inner glow. You pass in a number, and the component pads it with leading zeros to always display exactly seven digits.
+
+---
+
+## Props
+
+<ParamField path="count" type="number" default={420}>
+  The visitor count to display. The value is coerced to a string and left-padded with zeros to produce a 7-character display (e.g. `1337` → `"0001337"`). Negative numbers and non-integer values will produce unexpected display strings.
+</ParamField>
+
+---
+
+## Usage
+
+### Static display
+
+```jsx
+import { HitCounter } from "@/components/HitCounter";
+
+function Sidebar() {
+  return <HitCounter count={1337} />;
+}
+```
+
+### Wired to state
+
+```jsx
+import { useState, useEffect } from "react";
+import { HitCounter } from "@/components/HitCounter";
+
+function LiveCounter() {
+  const [visits, setVisits] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/hit-count")
+      .then((res) => res.json())
+      .then((data) => setVisits(data.count));
+  }, []);
+
+  return <HitCounter count={visits} />;
+}
+```
+
+---
+
+## How it works
+
+The component converts `count` to a string with `Number.toString()`, then pads the result to 7 characters with `String.prototype.padStart(7, "0")`. The resulting string is split character-by-character with `.split("")`, and each digit is wrapped in its own `<div>` styled as an individual LCD cell.
+
+### Digit cell styling
+
+| Property        | Value / Class                                              |
+| --------------- | ---------------------------------------------------------- |
+| Dimensions      | `h-8 w-6`                                                  |
+| Background      | `bg-[#111]`                                                |
+| Text color      | `text-y2k-lime`                                            |
+| Inner glow      | `shadow-[inset_0_0_5px_rgba(173,255,47,0.2)]`             |
+| Outer border    | `border border-y2k-panel`                                  |
+| Alignment       | `flex items-center justify-center`                         |
+
+### Container styling
+
+The digit row sits inside a `border-2 border-y2k-darkSilver bg-black p-1` wrapper, which mimics the plastic housing of a physical LCD counter. Above it, the label **"Visitors since the dawn of time:"** is rendered in `text-y2k-cyan font-vt323 text-xl`.
+
+---
+
+## Styling notes
+
+- Digit colors use the `y2k-lime` token (`#adff2f`). Adjust the token in `tailwind.config.js` to change the glow color across all digits at once.
+- The `shadow-[inset_...]` syntax is Tailwind's arbitrary value notation — ensure your Tailwind config has `content` paths that include this component file so the class is not purged.
+
+---
+
+## Caveats
+
+<Warning>
+  `HitCounter` is a **static display component** — it does not increment, persist, or fetch any data on its own. The displayed number will not change unless you update the `count` prop from outside (e.g. via `useState` or a data-fetching hook).
+</Warning>
+
+<Note>
+  The component pads to exactly **7 digits**. Counts larger than 9,999,999 will overflow the fixed-width display and render more than 7 cells. Consider capping your count prop at `9999999` if you need a visually consistent display.
+</Note>
+
+<Tip>
+  To make the counter live, wire it to a serverless function (e.g. a Vercel Edge Function or Cloudflare Worker) that reads and increments a KV store value on each page load. Return the new count as JSON and pass it to the `count` prop.
+</Tip>

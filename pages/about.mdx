@@ -1,0 +1,121 @@
+---
+title: "About Page: Personal Bio and Background (Route: /about)"
+sidebarTitle: "About"
+description: "Documents the About page at /about — personal bio, PixelHPBar skill display, Polaroid photos, ChromeButton links, and how to update your profile content."
+---
+
+The About page (route `/about`, HTML shell title: **"About | retro-cosmic-arcade"**) is your personal introduction to visitors — a digital bio card dressed up in Y2K flair. It typically combines a written introduction with visual personality: `<PixelHPBar>` components that display skills as RPG-style HP gauges, `<Polaroid>` components for photos or fun images, and `<ChromeButton>` elements for social and external links. This page explains the conventions used and how to update the content.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/about` |
+| HTML shell | `pages/About.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/about"` |
+| WebringNav label | `ABOUT` |
+| `<title>` tag | `About \| retro-cosmic-arcade` |
+
+## Typical Page Sections
+
+<CardGroup cols={2}>
+  <Card title="Bio / Introduction" icon="user">
+    A written paragraph or two about who you are, your background, and what you work on. Use `font-vt323` for the body text and `font-silkscreen` for section headings.
+  </Card>
+  <Card title="Skill HP Bars" icon="chart-bar">
+    A grid of `<PixelHPBar>` components displaying technical skills as filled pixel bars — the same visual language as an RPG character stats screen.
+  </Card>
+  <Card title="Polaroid Photos" icon="image">
+    `<Polaroid>` components showing a profile photo, workspace shot, or any image that gives personality to the page. Can be dragged by the visitor.
+  </Card>
+  <Card title="Links & CTAs" icon="link">
+    `<ChromeButton>` elements linking to GitHub, LinkedIn, a résumé PDF, or the contact page. Keep labels retro: "GITHUB PROFILE", "DOWNLOAD CV".
+  </Card>
+</CardGroup>
+
+## Basic Implementation
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+import PixelHPBar from "../components/PixelHPBar";
+import Polaroid from "../components/Polaroid";
+import ChromeButton from "../components/ChromeButton";
+
+export default function About() {
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-10 mb-6">
+          ABOUT.EXE
+        </h1>
+
+        {/* Bio + photo side by side */}
+        <div className="flex flex-col md:flex-row gap-8 mb-12">
+          <div className="flex-1 font-vt323 text-y2k-silver text-xl leading-relaxed">
+            <p>
+              Hi! I'm a full-stack developer based on the internet. I build
+              things with React, Node.js, and an unhealthy obsession with
+              CSS animations.
+            </p>
+            <p className="mt-4">
+              When I'm not shipping features I'm probably playing vintage
+              arcade games or reorganising my mechanical keyboard collection.
+            </p>
+            <div className="mt-6 flex gap-3">
+              <ChromeButton to="https://github.com/yourhandle">
+                GITHUB
+              </ChromeButton>
+              <ChromeButton to="/contact">CONTACT ME</ChromeButton>
+            </div>
+          </div>
+
+          <Polaroid
+            title="That's me!"
+            desc="Circa 2024"
+            rotation={-4}
+          />
+        </div>
+
+        {/* Skills */}
+        <h2 className="font-silkscreen text-y2k-cyan text-2xl mb-4">
+          STATS
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+          <PixelHPBar label="React" percentage={95} />
+          <PixelHPBar label="TypeScript" percentage={80} />
+          <PixelHPBar label="Node.js" percentage={75} />
+          <PixelHPBar label="CSS / Tailwind" percentage={90} />
+        </div>
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+## Updating Your Bio Content
+
+<Steps>
+  <Step title="Edit the intro text">
+    Find the `<p>` elements in your About route component and replace them with your own biography. Keep paragraphs concise — the `font-vt323` style works best at 2–4 sentences per block.
+  </Step>
+  <Step title="Swap the Polaroid image">
+    Pass an `src` prop to `<Polaroid>` pointing to your photo (place images in the `public/` folder or `assets/`). Adjust the `rotation` prop (positive = clockwise, negative = counter-clockwise) for a casual, pinned-to-corkboard feel.
+  </Step>
+  <Step title="Adjust skill percentages">
+    Update the `percentage` values on each `<PixelHPBar>`. Each percentage maps to 0–20 filled segments — see the [Skills page docs](/pages/skills) for the full breakdown.
+  </Step>
+  <Step title="Update external links">
+    Change the `to` prop values on `<ChromeButton>` to point to your real GitHub, LinkedIn, résumé, or other profiles. External URLs should be full `https://` strings.
+  </Step>
+</Steps>
+
+<Note>
+  The About page intentionally doubles as a quick-glance skills preview. For a more detailed skills breakdown with additional categories, direct visitors to the dedicated [Skills page](/pages/skills) (WebringNav label: **STATS**).
+</Note>

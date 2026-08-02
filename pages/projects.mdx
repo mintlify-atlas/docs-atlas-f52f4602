@@ -1,0 +1,149 @@
+---
+title: "Projects Page: Draggable Polaroid Portfolio Grid"
+sidebarTitle: "Projects"
+description: "Documents the Projects page at /projects — the draggable Polaroid portfolio grid, how to add projects, configure badges, and wire up real demo and source URLs."
+---
+
+The Projects page (route `/projects`, HTML shell title: **"Projects | retro-cosmic-arcade"**) is your portfolio showcase — a free-form gallery of `<Polaroid>` cards that visitors can drag around the screen like physical photographs pinned to a corkboard. Each Polaroid displays a project title, a short description, an optional badge label, and links to a live demo and source code. This page documents the grid layout, the interaction model, and how to add or edit projects.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/projects` |
+| HTML shell | `pages/Projects.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/projects"` |
+| WebringNav label | `PROJECTS` |
+| `<title>` tag | `Projects \| retro-cosmic-arcade` |
+
+## The Polaroid Grid
+
+Projects are laid out in a responsive, wrapping flex grid. The `justify-center` alignment means cards flow naturally from a centred baseline while `gap-8` provides breathing room between Polaroids. Varying the `rotation` prop on each card gives the scattered, hand-placed photograph look.
+
+```jsx
+<div className="flex flex-wrap gap-8 justify-center">
+  <Polaroid title="Project Alpha" desc="A cool thing I built." rotation={-3} />
+  <Polaroid title="Project Beta" desc="Another cool thing." badge="NEW" rotation={5} />
+</div>
+```
+
+### Drag Interaction
+
+Each `<Polaroid>` is draggable. The component uses **Framer Motion**'s `drag` prop to allow free repositioning within the viewport. Visitors can pick up a card, move it anywhere on screen, and release it — the card stays where it was dropped until the page is refreshed.
+
+<Tip>
+  Use a spread of `rotation` values (e.g. `-6` to `+6`) to avoid a mechanical look. Mixing small negative and positive rotations makes the grid feel like photos genuinely tossed onto a desk.
+</Tip>
+
+## Polaroid Props Reference
+
+<ParamField path="title" type="string" required>
+  The project name displayed on the bottom label strip of the Polaroid.
+</ParamField>
+
+<ParamField path="desc" type="string" required>
+  A short one-to-two sentence description shown below the title on the label strip.
+</ParamField>
+
+<ParamField path="rotation" type="number" default="0">
+  Initial CSS rotation in degrees. Positive values rotate clockwise; negative values rotate counter-clockwise. Typical range: `-8` to `+8`.
+</ParamField>
+
+<ParamField path="badge" type="string">
+  Optional badge label rendered as a small coloured tag on the corner of the Polaroid (e.g. `"NEW"`, `"WIP"`, `"ARCHIVED"`). Omit the prop to show no badge.
+</ParamField>
+
+<ParamField path="demoUrl" type="string">
+  URL for the live demo link. Currently defaults to `"#"` in the source — update this to a real URL to make the DEMO button functional.
+</ParamField>
+
+<ParamField path="srcUrl" type="string">
+  URL for the source code link. Currently defaults to `"#"` in the source — update this to point to your GitHub repository.
+</ParamField>
+
+## Adding a New Project
+
+<Steps>
+  <Step title="Open the Projects route component">
+    Find the React component that renders at route `/projects` inside the main bundle source. Locate the existing `<Polaroid>` elements inside the flex grid container.
+  </Step>
+  <Step title="Add a new Polaroid">
+    Copy an existing `<Polaroid>` block and update the `title`, `desc`, `rotation`, and optionally `badge` props:
+
+    ```jsx
+    <Polaroid
+      title="My New Project"
+      desc="A tool that does something really cool."
+      badge="NEW"
+      rotation={-2}
+      demoUrl="https://my-project.vercel.app"
+      srcUrl="https://github.com/yourhandle/my-project"
+    />
+    ```
+  </Step>
+  <Step title="Choose a rotation value">
+    Pick a `rotation` number that doesn't clash visually with its neighbours. A good rule: alternate signs and avoid using the same value twice in a row.
+  </Step>
+  <Step title="Add demo and source URLs">
+    Replace the `demoUrl` and `srcUrl` values with real links. See the warning below about the current `#` placeholder defaults.
+  </Step>
+</Steps>
+
+<Warning>
+  The **DEMO** and **SRC** link buttons inside each `<Polaroid>` currently point to `"#"` as placeholder values in the source code. Before publishing, open the `Polaroid.js` component (or wherever the links are constructed) and update the default `demoUrl` / `srcUrl` props — or pass real URLs directly on each instance.
+</Warning>
+
+## Full Grid Example
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+import Polaroid from "../components/Polaroid";
+
+export default function Projects() {
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-10 mb-2">
+          PROJECTS.DIR
+        </h1>
+        <p className="font-vt323 text-y2k-silver text-xl mb-10">
+          Drag the photos around. You know you want to.
+        </p>
+
+        <div className="flex flex-wrap gap-8 justify-center">
+          <Polaroid
+            title="Project Alpha"
+            desc="A cool thing I built."
+            rotation={-3}
+            demoUrl="https://alpha.example.com"
+            srcUrl="https://github.com/yourhandle/alpha"
+          />
+          <Polaroid
+            title="Project Beta"
+            desc="Another cool thing."
+            badge="NEW"
+            rotation={5}
+            demoUrl="https://beta.example.com"
+            srcUrl="https://github.com/yourhandle/beta"
+          />
+          <Polaroid
+            title="Project Gamma"
+            desc="The one I'm still finishing."
+            badge="WIP"
+            rotation={-1}
+            demoUrl="#"
+            srcUrl="https://github.com/yourhandle/gamma"
+          />
+        </div>
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```

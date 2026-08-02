@@ -1,0 +1,140 @@
+---
+title: "Typography and Font System in Retro Cosmic Arcade"
+sidebarTitle: "Fonts"
+description: "Explore the four Google Fonts, their Tailwind utility classes, font pairing advice, and how to swap any typeface in Retro Cosmic Arcade."
+---
+
+Typography in Retro Cosmic Arcade is split across four carefully chosen Google Fonts, each assigned a specific role in the interface — from readable body copy to glitchy CRT terminal readouts. This page documents every font, its Tailwind class, where it appears in the project, and exactly how to swap one out without breaking the rest of the design.
+
+## The Four Fonts
+
+<CardGroup cols={2}>
+  <Card title="Inter" icon="align-left">
+    **Class:** `font-inter`  
+    **Role:** Body text and readable prose  
+    **Weights loaded:** 400, 600  
+    Inter is the default `sans-serif` fallback for the entire app. It handles descriptions, paragraphs, and any copy where legibility matters more than aesthetic.
+  </Card>
+  <Card title="Major Mono Display" icon="heading">
+    **Class:** `font-major`  
+    **Role:** Large hero headings and dramatic display text  
+    **Weights loaded:** 400 (single weight)  
+    A condensed monospace display face with a retro-futurist feel. Used for the main hero title and any large-format section headings that need maximum visual impact.
+  </Card>
+  <Card title="Silkscreen" icon="gamepad">
+    **Class:** `font-silkscreen`  
+    **Role:** Pixel-art button labels and UI chrome text  
+    **Weights loaded:** 400, 700  
+    Silkscreen mimics old LCD and dot-matrix displays. It appears on `ChromeButton` labels, badge overlays, and anywhere the text needs to feel like it belongs on a physical arcade cabinet or 8-bit UI.
+  </Card>
+  <Card title="VT323" icon="terminal">
+    **Class:** `font-vt323`  
+    **Role:** CRT terminal style, counters, and retro data readouts  
+    **Weights loaded:** 400 (single weight)  
+    VT323 is based on the font used on DEC VT terminals. It appears inside Polaroid card previews, the `PixelHPBar` percentage readout, and anywhere you want a monospace value to look like it was printed by a cathode-ray tube.
+  </Card>
+</CardGroup>
+
+<Tip>
+  VT323 is especially effective for numbers and counters. Its fixed-width glyphs mean digits never shift the surrounding layout as values change — making it ideal for animated HP bars, live counters, and score displays.
+</Tip>
+
+---
+
+## Google Fonts Import
+
+All four families are loaded through a single `@import` at the top of `assets/main.css`. The `display=swap` parameter ensures text renders immediately in a system fallback while the web fonts load.
+
+```css assets/main.css
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Major+Mono+Display&family=Silkscreen:wght@400;700&family=VT323&display=swap";
+```
+
+This single URL fetches all four families in one HTTP request, keeping network overhead minimal.
+
+---
+
+## Applying Fonts with Tailwind Classes
+
+Each font maps to a Tailwind utility class registered in the `theme.extend.fontFamily` block of the Tailwind config. Add the class to any element to switch its typeface:
+
+```jsx
+<h1 className="font-major text-5xl text-y2k-cyan">PLAYER ONE</h1>
+<p className="font-vt323 text-xl text-y2k-lime">INSERT COIN TO CONTINUE</p>
+<button className="font-silkscreen">PRESS START</button>
+<p className="font-inter text-sm">Normal readable body text here.</p>
+```
+
+The classes resolve to the following `font-family` stacks in the compiled CSS:
+
+| Tailwind class      | `font-family` value                   |
+|---------------------|---------------------------------------|
+| `font-inter`        | `Inter, sans-serif`                   |
+| `font-major`        | `Major Mono Display, monospace`       |
+| `font-silkscreen`   | `Silkscreen, cursive`                 |
+| `font-vt323`        | `VT323, monospace`                    |
+
+---
+
+## Font Pairing Recommendations
+
+The four fonts were chosen to complement each other across three distinct UI zones:
+
+<Accordion title="Headings — Major Mono Display + Silkscreen">
+  Use **Major Mono Display** (`font-major`) for top-level section titles, hero text, and any heading rendered at `text-4xl` or larger. Its condensed letterforms read well at large sizes.
+
+  Drop down to **Silkscreen** (`font-silkscreen`) for sub-headings, button labels, and UI chrome text where you need the pixel-art aesthetic at smaller sizes (typically `text-sm` to `text-lg`). Silkscreen's bitmapped quality holds up better than Major Mono at smaller point sizes.
+</Accordion>
+
+<Accordion title="Body — Inter">
+  Use **Inter** (`font-inter`) for any descriptive text, paragraphs, tooltips, and form labels. It is the most legible of the four at typical reading sizes (`text-sm` to `text-base`) and provides a deliberate contrast to the decorative display fonts around it.
+
+  `font-inter` is the default applied to `body` in `main.css`, so it does not need to be added explicitly unless you are overriding a parent that has set a different family.
+</Accordion>
+
+<Accordion title="Data & Counters — VT323">
+  Use **VT323** (`font-vt323`) for any numeric readout, progress indicator, live counter, or terminal-style label. Its fixed-width CRT look turns raw data into part of the arcade aesthetic.
+
+  In the project it appears in `PixelHPBar` for the percentage value and inside `Polaroid` card previews to display the project title in a screen-within-a-screen style.
+</Accordion>
+
+---
+
+## Swapping a Font
+
+<Steps>
+  <Step title="Choose a replacement from Google Fonts">
+    Browse [fonts.google.com](https://fonts.google.com) and pick a replacement. Note the exact family name and the weights you need.
+  </Step>
+  <Step title="Update the @import URL">
+    Open `assets/main.css` and edit the `@import` string. Replace the old `family=` parameter with the new one:
+
+    ```css
+    /* Before */
+    @import "https://fonts.googleapis.com/css2?...&family=Silkscreen:wght@400;700&...";
+
+    /* After — replacing Silkscreen with Press Start 2P */
+    @import "https://fonts.googleapis.com/css2?...&family=Press+Start+2P&...";
+    ```
+  </Step>
+  <Step title="Update the Tailwind config">
+    Open `tailwind.config.js` and update the matching entry in `theme.extend.fontFamily`:
+
+    ```js tailwind.config.js
+    fontFamily: {
+      // Before
+      silkscreen: ['Silkscreen', 'cursive'],
+      // After
+      silkscreen: ['"Press Start 2P"', 'cursive'],
+    },
+    ```
+
+    Wrap family names that contain spaces in inner quotes so the CSS `font-family` value is valid.
+  </Step>
+  <Step title="Check sizes and line-height">
+    Different fonts have different x-heights and advance widths. After swapping, scan for any components that used size-specific classes (`text-[10px]`, `leading-tight`, etc.) tuned to the old font and adjust as needed.
+  </Step>
+</Steps>
+
+<Note>
+  If you are self-hosting fonts instead of using Google Fonts, remove the `@import` line and add `@font-face` rules pointing to your local font files. The Tailwind utility classes (`font-silkscreen`, etc.) remain unchanged — only the CSS that resolves the family name needs to be updated.
+</Note>

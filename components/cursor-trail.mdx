@@ -1,0 +1,88 @@
+---
+title: "CursorTrail: Neon Particle Mouse Trail Effect"
+sidebarTitle: "CursorTrail"
+description: "A zero-prop Framer Motion component that renders a neon cyan/magenta glowing particle trail following the mouse cursor across the entire page."
+---
+
+`CursorTrail` attaches a global `mousemove` listener and renders a short stream of glowing neon particles that follow the user's cursor around the page. Each particle is a 2×2 CSS-pixel cyan square with a dual-color glow (`#4dffff` cyan + `#ff4ad8` magenta), fading out with a scale-down animation over 500 ms. The component mounts a fixed, pointer-events-none overlay at z-index 50 so it never interferes with clicks, forms, or other interactive elements.
+
+---
+
+## Props
+
+This component accepts **no props**. Drop it anywhere in the tree and it self-manages its own state and event listeners.
+
+---
+
+## Usage
+
+Place `CursorTrail` once, near the root of your application. A good location is your layout shell or `App.jsx`:
+
+```jsx
+import { CursorTrail } from "@/components/CursorTrail";
+
+function App() {
+  return (
+    <>
+      <CursorTrail />
+      {/* rest of your app */}
+    </>
+  );
+}
+```
+
+<Warning>
+  Do not render `CursorTrail` more than once simultaneously. Multiple instances will each attach their own `mousemove` listener and render overlapping particle layers, causing visual doubling and unnecessary re-renders.
+</Warning>
+
+---
+
+## How it works
+
+### Event listener and particle buffer
+
+On mount, the component registers a single `window.addEventListener('mousemove', handler)` listener. The handler records the cursor's `clientX` / `clientY` coordinates together with an auto-incrementing numeric `id` and appends the new position to a React state array. The array is **capped at 15 entries** by slicing with `.slice(-15)` — older positions are discarded, creating the trail effect. The listener is cleaned up automatically on unmount via the `useEffect` return function.
+
+### Particle animation
+
+Each particle is rendered as a `motion.div` inside Framer Motion's `AnimatePresence`:
+
+| Property       | Value                        |
+| -------------- | ---------------------------- |
+| Width × Height | `8px × 8px` (`h-2 w-2`)     |
+| Shape          | Square (`rounded-none`)      |
+| Fill color     | `bg-y2k-cyan` (`#4dffff`)   |
+| Glow           | `boxShadow: "0 0 5px #4dffff, 0 0 10px #ff4ad8"` |
+| `initial`      | `opacity: 0.8, scale: 1`     |
+| `animate`      | `opacity: 0, scale: 0.2`     |
+| `transition`   | `duration: 0.5, ease: "easeOut"` |
+
+### Overlay container
+
+The wrapping `<div>` uses:
+
+- `fixed inset-0` — covers the full viewport regardless of scroll position.
+- `pointer-events-none` — all mouse/touch events pass straight through to the content below.
+- `z-50` — renders above most other content without requiring manual z-index management.
+- `overflow-hidden` — clips any particle that spawns at the very edge of the viewport.
+
+---
+
+## Styling notes
+
+- Particle color is controlled by the `bg-y2k-cyan` Tailwind token and the inline `boxShadow` style. To change the trail color, update the custom token in `tailwind.config.js` and the two hex values in the component's `style` prop.
+- The component does not use CSS keyframe animations — all motion is driven by Framer Motion's JS animation engine for consistent cross-browser behavior.
+
+---
+
+## Dependencies
+
+- **Framer Motion** — `AnimatePresence` and `motion.div` are both required for the enter/exit animations.
+
+<Note>
+  `CursorTrail` uses `AnimatePresence` to cleanly animate particles **out** when they are removed from the state array. Without `AnimatePresence`, particles would simply disappear rather than fade and shrink.
+</Note>
+
+<Tip>
+  On touch devices, `mousemove` events are not fired. The component will mount without error but no particles will appear on mobile. This is by design — the effect is purely decorative and desktop-focused.
+</Tip>

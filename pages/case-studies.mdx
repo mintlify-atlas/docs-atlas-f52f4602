@@ -1,0 +1,173 @@
+---
+title: "Case Studies: Deep Dive Technical Write-Ups"
+sidebarTitle: "Case Studies"
+description: "Documents the Case Studies page (DEEP DIVES in WebringNav) at /case-studies — longer-form technical write-ups, content structure, and site styling conventions."
+---
+
+The Case Studies page (route `/case-studies`, HTML shell title: **"CaseStudies | retro-cosmic-arcade"**) is the home for your most substantial technical writing. Where the [Writing/Journal page](/pages/writing) hosts shorter dev notes and posts, Case Studies — labelled **DEEP DIVES** in the webring navigation — is for long-form investigations: architecture decisions, project post-mortems, benchmarking results, and anything else that deserves a proper treatment. This page documents the content structure and conventions used to format these write-ups.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/case-studies` |
+| HTML shell | `pages/CaseStudies.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/case-studies"` |
+| WebringNav label | `DEEP DIVES` |
+| `<title>` tag | `CaseStudies \| retro-cosmic-arcade` |
+
+## Purpose and Scope
+
+Case Studies differ from journal posts in three key ways:
+
+<CardGroup cols={3}>
+  <Card title="Depth" icon="magnifying-glass">
+    A case study covers a single problem end-to-end — context, approach, execution, and outcome — rather than a brief observation or tip.
+  </Card>
+  <Card title="Structure" icon="list">
+    Each entry follows a consistent internal structure: title, summary, tech stack, problem, solution, and outcome. This predictability helps readers know what to expect.
+  </Card>
+  <Card title="Evidence" icon="chart-line">
+    Wherever possible, case studies include concrete evidence — performance numbers, before/after comparisons, screenshots, or code diffs — rather than abstract claims.
+  </Card>
+</CardGroup>
+
+## Case Study Content Structure
+
+Each case study entry is a JavaScript object (or a standalone MDX/Markdown file rendered into the component) following this shape:
+
+```js
+const caseStudies = [
+  {
+    id: 1,
+    title: "Reducing Bundle Size by 40% With Code Splitting",
+    date: "2024-09-20",
+    summary:
+      "How I identified the largest chunks in a Vite build, applied dynamic imports, and cut initial load time nearly in half.",
+    techStack: ["Vite", "React", "Rollup", "Lighthouse"],
+    sections: [
+      {
+        heading: "The Problem",
+        body: "The production bundle was shipping 800KB of JavaScript on first load...",
+      },
+      {
+        heading: "The Solution",
+        body: "Using Vite's dynamic import() at route boundaries and lazy-loading...",
+      },
+      {
+        heading: "The Outcome",
+        body: "Bundle size dropped from 800KB to 480KB. Lighthouse performance score...",
+      },
+    ],
+  },
+];
+```
+
+## Rendering a Case Study
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+
+export default function CaseStudies() {
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-10 mb-2">
+          DEEP_DIVES.TXT
+        </h1>
+        <p className="font-vt323 text-y2k-silver text-xl mb-10">
+          Long-form technical investigations. Grab a coffee.
+        </p>
+
+        {caseStudies.map((study) => (
+          <article
+            key={study.id}
+            className="mb-16 border-t-2 border-y2k-cyan pt-8"
+          >
+            {/* Header */}
+            <p className="font-vt323 text-y2k-darkSilver text-sm mb-1">
+              {study.date}
+            </p>
+            <h2 className="font-silkscreen text-y2k-cyan text-2xl mb-3">
+              {study.title}
+            </h2>
+            <p className="font-inter text-y2k-silver text-base leading-relaxed mb-4">
+              {study.summary}
+            </p>
+
+            {/* Tech stack chips */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {study.techStack.map((tech) => (
+                <span
+                  key={tech}
+                  className="font-vt323 text-xs text-y2k-lime border border-y2k-lime px-2 py-0"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+
+            {/* Sections */}
+            {study.sections.map((section) => (
+              <div key={section.heading} className="mb-6">
+                <h3 className="font-silkscreen text-y2k-magenta text-lg mb-2">
+                  {section.heading}
+                </h3>
+                <p className="font-inter text-y2k-silver text-base leading-relaxed">
+                  {section.body}
+                </p>
+              </div>
+            ))}
+          </article>
+        ))}
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+## Styling Conventions
+
+<Accordion title="Typography hierarchy">
+  - **Page heading:** `font-silkscreen text-y2k-lime text-4xl` — the "file name" style title
+  - **Study title:** `font-silkscreen text-y2k-cyan text-2xl` — stands out from body copy
+  - **Section headings** (Problem / Solution / Outcome): `font-silkscreen text-y2k-magenta text-lg`
+  - **Body copy:** `font-inter text-y2k-silver text-base leading-relaxed` — readable at length
+  - **Date / metadata:** `font-vt323 text-y2k-darkSilver text-sm`
+</Accordion>
+
+<Accordion title="Tech stack chips">
+  Render tech stack items as small square-cornered badge chips: `border border-y2k-lime text-y2k-lime font-vt323 text-xs px-2`. Use lime for frontend technologies and cyan for backend/infrastructure, or a consistent lime for everything — pick one and be consistent.
+</Accordion>
+
+<Accordion title="Section dividers">
+  Each case study is separated from the next by `border-t-2 border-y2k-cyan`. Within a study, sections are separated by vertical spacing alone (`mb-6`) — additional horizontal rules would be too heavy for an already structured document.
+</Accordion>
+
+<Accordion title="Code blocks and diffs">
+  For case studies that include code, render fenced code blocks using a syntax highlighter compatible with the Retro Cosmic theme (e.g. Prism with a custom dark theme that uses `#060010` as the background and `text-y2k-lime` for keywords). Wrap code blocks in a container with `border border-y2k-cyan bg-y2k-panel` to maintain visual consistency.
+</Accordion>
+
+## Adding a New Case Study
+
+<Steps>
+  <Step title="Add an entry to caseStudies array">
+    Append a new object with `id`, `title`, `date`, `summary`, `techStack`, and `sections` fields. Sort by `date` descending to keep newest entries first.
+  </Step>
+  <Step title="Write the three core sections">
+    Structure every entry around **Problem → Solution → Outcome**. This three-act shape gives readers a clear narrative arc and makes the write-up skimmable.
+  </Step>
+  <Step title="List the real tech stack">
+    Be specific — `"Vite 5.x"` is more useful than `"Build Tool"`. Readers often land on case studies specifically because they're evaluating the same technology.
+  </Step>
+  <Step title="Include concrete evidence">
+    Add a fourth section (e.g. `"Results"` or `"Metrics"`) for quantitative outcomes. Numbers — load times, error rates, lines of code reduced — make the write-up credible and searchable.
+  </Step>
+</Steps>

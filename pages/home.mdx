@@ -1,0 +1,105 @@
+---
+title: "Home Page: The Arcade Entrance (Route: /)"
+sidebarTitle: "Home"
+description: "Covers the Home page at route /, its hero section, hit counter, marquee ticker, and how to customise the arcade entrance content for your own portfolio."
+---
+
+The Home page is the first thing visitors see when they arrive at Retro Cosmic Arcade. Served by `pages/Home.html` (title: **"Home | retro-cosmic-arcade"**), it sets the tone for the entire site — a glowing, animated arcade entrance complete with a scrolling marquee ticker, a retro visitor hit counter, and a hero call-to-action. This page documents what the Home route contains and how to make it your own.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/` |
+| HTML shell | `pages/Home.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/"` |
+| WebringNav label | `HOME` |
+| `<title>` tag | `Home \| retro-cosmic-arcade` |
+
+## Page Structure
+
+The Home page follows the standard [layout stack](/components/page-layout): `<WebringNav />` at the top, a centred `max-w-5xl` content area, `<CursorTrail />`, and `<Footer />` at the bottom. Inside the content area, the conventional arrangement is:
+
+<Steps>
+  <Step title="Hero section">
+    A large heading in `font-silkscreen` or `font-vt323`, a brief tagline, and a `<ChromeButton>` that links visitors to the Projects or About page. This is the "INSERT COIN" moment — make the copy loud and Y2K.
+  </Step>
+  <Step title="MarqueeTicker">
+    A horizontally scrolling ticker strip (`<MarqueeTicker>`) beneath the hero that cycles through headlines, fun facts, or recent updates. Styled with `bg-y2k-magenta` or `bg-y2k-cyan` depending on the desired vibe.
+  </Step>
+  <Step title="HitCounter">
+    The `<HitCounter>` component displays an incrementing visitor count in classic seven-segment display style — a hallmark of early personal home pages. Place it in the lower section of the hero or in a dedicated "stats" block.
+  </Step>
+  <Step title="Secondary CTAs">
+    Additional `<ChromeButton>` elements linking to `/projects`, `/about`, or `/contact`. Keep the button labels retro: "ENTER", "VIEW PORTFOLIO", "SEND MESSAGE".
+  </Step>
+</Steps>
+
+## Basic Implementation
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+import MarqueeTicker from "../components/MarqueeTicker";
+import HitCounter from "../components/HitCounter";
+import ChromeButton from "../components/ChromeButton";
+
+export default function Home() {
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4 text-center">
+        {/* Hero */}
+        <h1 className="font-silkscreen text-y2k-lime text-5xl mt-12 mb-4">
+          WELCOME TO MY ARCADE
+        </h1>
+        <p className="font-vt323 text-y2k-silver text-2xl mb-8">
+          Full-stack developer. Pixel enthusiast. Recovering over-engineer.
+        </p>
+
+        <div className="flex gap-4 justify-center mb-12">
+          <ChromeButton to="/projects">VIEW PORTFOLIO</ChromeButton>
+          <ChromeButton to="/about">ABOUT ME</ChromeButton>
+        </div>
+
+        {/* Scrolling ticker */}
+        <MarqueeTicker>
+          ★ NEW PROJECT DROPPED ★ AVAILABLE FOR HIRE ★ COFFEE COUNT: 9001 ★
+        </MarqueeTicker>
+
+        {/* Hit counter */}
+        <div className="mt-12">
+          <HitCounter />
+        </div>
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+## Customising the Home Page
+
+<Accordion title="Changing the hero text">
+  Edit the `<h1>` and `<p>` copy directly in the Home route component. The `font-silkscreen` class applies the pixelated heading font; `font-vt323` gives the terminal/typewriter feel for body copy. Use `text-y2k-lime`, `text-y2k-cyan`, or `text-y2k-magenta` for accent colours.
+</Accordion>
+
+<Accordion title="Updating the MarqueeTicker content">
+  Pass your scrolling text as children to `<MarqueeTicker>`. Separate items with a bullet or star (`★`) character to maintain visual rhythm. Keep individual items short — the ticker works best with punchy, concise entries.
+</Accordion>
+
+<Accordion title="Resetting or seeding the HitCounter">
+  The `<HitCounter>` component manages its count value internally (or via `localStorage` — check the component source). To seed an initial value or reset it, inspect the component's initialisation logic and update the default seed value.
+</Accordion>
+
+<Accordion title="Adding a featured project spotlight">
+  Drop a `<Polaroid>` component below the ticker to showcase a pinned project on the Home page. Give it a bright `rotation` value and a `badge="FEATURED"` prop to make it stand out.
+</Accordion>
+
+<Note>
+  The HTML shell at `pages/Home.html` sets `window.__STATIC_PAGE_ROUTE__ = "/"` and automatically redirects to the hash URL `#/` for static hosting compatibility. Do not modify this script block unless you are changing the routing strategy for the whole site.
+</Note>

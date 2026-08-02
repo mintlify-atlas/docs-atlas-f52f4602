@@ -1,0 +1,86 @@
+---
+title: "Retro Cosmic Arcade Project Structure and File Layout"
+sidebarTitle: "Project Structure"
+description: "A complete guide to the Retro Cosmic Arcade directory layout, explaining the role of each HTML entry point, component, and bundled asset."
+---
+
+Retro Cosmic Arcade follows an unconventional but deliberate file layout shaped by its deployment target: a static file host with no server-side rendering. Instead of a single `index.html` that React Router intercepts for all routes, each route has its own HTML file. This page explains why that pattern was chosen and what every file and folder is responsible for.
+
+## Directory Tree
+
+```
+retro-cosmic-arcade/
+├── index.html              # Root entry point (serves the / route)
+├── pages/
+│   ├── Home.html           # /home — mirrors the root entry point
+│   ├── About.html          # /about route entry point
+│   ├── Projects.html       # /projects route entry point
+│   ├── Skills.html         # /skills route entry point
+│   ├── Writing.html        # /writing route entry point
+│   ├── CaseStudies.html    # /case-studies route entry point
+│   └── Contact.html        # /contact route entry point
+├── components/
+│   ├── ChromeButton.js     # Windows 98-style beveled button
+│   ├── CursorTrail.js      # Sparkle cursor trail effect
+│   ├── Footer.js           # Site footer + scanline toggle
+│   ├── HitCounter.js       # Retro hit-counter display
+│   ├── MarqueeTicker.js    # Scrolling marquee text banner
+│   ├── PixelHPBar.js       # RPG-style pixel health/skill bar
+│   ├── Polaroid.js         # Polaroid-frame image component
+│   └── WebringNav.js       # Primary navigation + route definitions
+├── assets/
+│   ├── main.js             # React app bundle (Vite output)
+│   ├── main.css            # Compiled Tailwind CSS + custom tokens
+│   ├── jsx-runtime.js      # React JSX runtime (split chunk)
+│   └── proxy.js            # Framer Motion bundle (split chunk)
+└── README.md
+```
+
+## Section Breakdown
+
+### HTML Entry Points
+
+The root `index.html` is the canonical entry point served when a visitor lands on `/`. Each file in `pages/` mirrors it almost exactly, differing only in the value assigned to `window.__STATIC_PAGE_ROUTE__` and the relative paths used for asset references.
+
+Every HTML file:
+- Loads `assets/main.js` as a `type="module"` script (the compiled React app).
+- Declares `<link rel="modulepreload">` tags for every component and asset chunk so the browser fetches them in parallel before they are needed.
+- Links `assets/main.css` for Tailwind styles and custom Y2K tokens.
+- Contains an inline `<script>` that sets `window.__STATIC_PAGE_ROUTE__` and performs a hash redirect so React Router picks up the correct route.
+- Renders into `<div id="root"></div>`.
+
+<Note>
+  The multi-page HTML pattern means the site works on any static host without URL rewrite rules. Each URL (`/about`, `/projects`, etc.) resolves to a real file on disk, so the host never returns a 404 for a deep-link.
+</Note>
+
+### `components/`
+
+All UI components are pre-built JavaScript modules (ES module format). They are loaded via `<link rel="modulepreload">` in every HTML file and consumed by `assets/main.js` at runtime.
+
+| Component | Purpose |
+|---|---|
+| `ChromeButton.js` | Renders a button styled with a Win98-era bevel (`chrome-bg` CSS class). |
+| `CursorTrail.js` | Attaches a `mousemove` listener and renders a sparkle trail following the cursor. |
+| `Footer.js` | Renders the page footer and exposes a toggle switch for the `.scanlines` CRT overlay. |
+| `HitCounter.js` | Displays a retro segmented-display hit counter widget. |
+| `MarqueeTicker.js` | Renders a horizontally scrolling text ticker, styled after the HTML `<marquee>` element. |
+| `PixelHPBar.js` | Renders a pixel-art health or skill bar for the Stats/Skills page. |
+| `Polaroid.js` | Wraps an image in a Polaroid-style frame with a caption area. |
+| `WebringNav.js` | Defines the seven-route navigation table and renders the site-wide nav bar. |
+
+### `assets/`
+
+Vite splits the compiled output into four files to maximise browser caching:
+
+| File | Contents |
+|---|---|
+| `main.js` | The React application — page components, routing logic, Framer Motion animations. |
+| `main.css` | Compiled Tailwind CSS, custom Y2K color tokens, utility classes, and Google Fonts import. |
+| `jsx-runtime.js` | React's JSX transform runtime, extracted as a shared chunk to avoid duplication. |
+| `proxy.js` | Framer Motion's bundled output, split so pages that do not animate can skip it. |
+
+### Multi-Page HTML and Static Hosting
+
+<Info>
+  Traditional React SPAs ship a single `index.html` and rely on a server-side catch-all (`try_files`, `_redirects`, or a Vite proxy rule) to serve that file for every URL. Retro Cosmic Arcade avoids this entirely by pairing one HTML file with each route. Combined with hash routing, this approach guarantees that any file-based host — including GitHub Pages, AWS S3, and Netlify's drag-and-drop deploy — serves every page correctly without extra configuration.
+</Info>

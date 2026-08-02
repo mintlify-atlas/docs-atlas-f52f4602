@@ -1,0 +1,128 @@
+---
+title: "WebringNav: Retro Webring-Style Site Navigation"
+sidebarTitle: "WebringNav"
+description: "A React Router 6 navigation bar styled as a 1990s webring, with PREV/NEXT wraparound, an INDEX shortcut, and a RANDOM page picker."
+---
+
+`WebringNav` is a site-wide navigation component that mimics the "webring" navigation bars popular on personal home pages in the late 1990s. It reads the current route via React Router 6's `useLocation` hook, finds the matching entry in a predefined routes array, and renders **PREV** and **NEXT** links that wrap around at the ends of the list. It also provides a static **INDEX** link to `/` and a **RANDOM** link that navigates to a randomly selected route on click.
+
+---
+
+## Props
+
+This component accepts **no props**. All routing context is read internally via `useLocation`.
+
+---
+
+## Usage
+
+Place `WebringNav` inside your layout shell or at the top of any page component. It must be rendered within a React Router context (e.g., inside `BrowserRouter` or `HashRouter`):
+
+```jsx
+import { WebringNav } from "@/components/WebringNav";
+
+function Layout({ children }) {
+  return (
+    <>
+      <WebringNav />
+      <main>{children}</main>
+    </>
+  );
+}
+```
+
+<Warning>
+  `WebringNav` calls `useLocation` internally, which requires a React Router context ancestor. Rendering it outside of a `BrowserRouter` or `HashRouter` will throw a React error. Ensure your router provider wraps the component.
+</Warning>
+
+---
+
+## Routes array
+
+The component uses a statically defined routes array. The full list, in order, is:
+
+```js
+const routes = [
+  { path: "/",            name: "HOME"       },
+  { path: "/about",       name: "ABOUT"      },
+  { path: "/projects",    name: "PROJECTS"   },
+  { path: "/skills",      name: "STATS"      },
+  { path: "/writing",     name: "JOURNAL"    },
+  { path: "/case-studies",name: "DEEP DIVES" },
+  { path: "/contact",     name: "GUESTBOOK"  },
+];
+```
+
+The `name` values are displayed in the PREV/NEXT labels and in the current-page indicator.
+
+---
+
+## Navigation logic
+
+### PREV and NEXT
+
+The component finds the current route's index with `routes.findIndex(r => r.path === location.pathname)`. PREV and NEXT indices are calculated with wrap-around logic:
+
+| Condition               | Behavior                                      |
+| ----------------------- | --------------------------------------------- |
+| Current is first route  | PREV wraps to the **last** route in the array |
+| Current is last route   | NEXT wraps to the **first** route             |
+| Any other position      | PREV = index − 1, NEXT = index + 1            |
+
+### Current page indicator
+
+The active page name is displayed in the center of the nav bar, styled `text-y2k-lime animate-blink` and surrounded by square brackets: `[ PROJECTS ]`.
+
+### INDEX link
+
+The INDEX link is always a hard link to `"/"` — it does not depend on the current route position and always takes the user to the home page.
+
+### RANDOM link
+
+The RANDOM link's `to` prop is computed at render time as:
+
+```js
+routes[Math.floor(Math.random() * routes.length)].path
+```
+
+This means a new random destination is selected on each render. Clicking the link once navigates to that destination; the next render (on the new page) will pick a different random target.
+
+<Note>
+  Because the RANDOM link target is calculated at render time rather than on click, the destination is determined when the component renders, not when the user clicks. In practice this is imperceptible, but be aware that it will not re-roll on repeated clicks on the same page without a re-render in between.
+</Note>
+
+---
+
+## Layout and styling
+
+The nav renders as a `<nav>` element with three rows:
+
+1. **Header label** — `"-- OFFICIAL WEBRING NAVIGATION --"` in `text-y2k-magenta text-xs`.
+2. **Main row** — `◄ PREV (NAME)`, `[ CURRENT ]`, and `NEXT (NAME) ►` in a flex row with `gap-4`.
+3. **Utility row** — `INDEX` and `RANDOM` links separated by a pipe character `|`.
+
+| Token / Class         | Effect                                          |
+| --------------------- | ----------------------------------------------- |
+| `font-silkscreen`     | Pixel Silkscreen font for all text              |
+| `bg-y2k-panel`        | Dark panel background                           |
+| `border-b-2 border-y2k-cyan` | Cyan bottom border separating nav from content |
+| `text-y2k-silver`     | Default link color (PREV / NEXT)                |
+| `hover:text-y2k-cyan` | Link hover color                                |
+| `text-y2k-lime animate-blink` | Current page indicator (blinking lime)    |
+| `text-y2k-magenta`    | INDEX and RANDOM link colors                    |
+
+---
+
+## Extending the routes
+
+To add a new page to the webring rotation, add an entry to the `routes` array inside `WebringNav.js`:
+
+```js
+{ path: "/gallery", name: "GALLERY" },
+```
+
+The PREV/NEXT logic is purely index-based, so the new route will be automatically included in the rotation at the position you insert it.
+
+<Tip>
+  Keep page `name` values short (one or two words, uppercase) so they fit comfortably inside the PREV/NEXT parentheses on narrow viewports. The component uses `text-sm sm:text-base` for the main navigation row, providing a degree of responsive sizing.
+</Tip>

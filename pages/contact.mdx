@@ -1,0 +1,212 @@
+---
+title: "Contact Page: Retro Guestbook and Outreach Form"
+sidebarTitle: "Contact"
+description: "Documents the Contact page (GUESTBOOK in WebringNav) at /contact — the guestbook metaphor, contact form setup, Formspree/Netlify Forms, and social links."
+---
+
+The Contact page (route `/contact`, HTML shell title: **"Contact | retro-cosmic-arcade"**) reimagines the classic 1990s/2000s web guestbook as a modern contact interface. In the webring navigation it is labelled **GUESTBOOK** — a deliberate callback to the hand-crafted personal sites of the early web where visitors would literally "sign" a guest register to leave a message. This page documents the guestbook metaphor, the contact form setup, and how to wire up a form submission backend for a static site.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/contact` |
+| HTML shell | `pages/Contact.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/contact"` |
+| WebringNav label | `GUESTBOOK` |
+| `<title>` tag | `Contact \| retro-cosmic-arcade` |
+
+## The Guestbook Metaphor
+
+Early personal websites nearly always featured a **guestbook** — a simple form where visitors could leave a name and message that would appear publicly on the page, demonstrating the site had real human visitors. Retro Cosmic Arcade honours this tradition by labelling the contact page "GUESTBOOK" and styling the contact form with the same VT323/Silkscreen typography and cyan/magenta colour palette used throughout the site.
+
+The form itself is a modern contact form (not a real public guestbook with visible entries), but the retro aesthetic framing sets the tone: "Leave your coordinates. I'll signal back."
+
+## Page Sections
+
+<CardGroup cols={2}>
+  <Card title="Contact Form" icon="envelope">
+    The primary interaction — a styled form with fields for name, email, and message. Requires a third-party form handler for submissions (see note below).
+  </Card>
+  <Card title="Social Links" icon="share-nodes">
+    A row of `<ChromeButton>` or styled anchor elements linking to GitHub, LinkedIn, Twitter/X, and any other relevant profiles.
+  </Card>
+  <Card title="Email Address" icon="at">
+    A plain-text or mailto-linked email address for visitors who prefer direct outreach. Wrap in `font-vt323 text-y2k-cyan` for consistency.
+  </Card>
+  <Card title="Flavour copy" icon="terminal">
+    A short intro paragraph in the guestbook voice: "Transmit your message into the void. Response time: faster than dial-up."
+  </Card>
+</CardGroup>
+
+<Note>
+  **Static sites have no backend.** Retro Cosmic Arcade is a fully static Vite/React SPA — there is no server to receive form submissions. To make the contact form functional, integrate a third-party form service:
+
+  - **[Formspree](https://formspree.io)** — point the form `action` at a Formspree endpoint; submissions are forwarded to your email.
+  - **[Netlify Forms](https://docs.netlify.com/forms/setup/)** — if deployed on Netlify, add `data-netlify="true"` to the `<form>` element and Netlify handles submission ingestion automatically.
+  - **[EmailJS](https://www.emailjs.com)** — a JavaScript SDK that sends email directly from the browser without any server; suitable for GitHub Pages or other non-Netlify hosts.
+</Note>
+
+## Basic Implementation
+
+```jsx
+import { useState } from "react";
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+import ChromeButton from "../components/ChromeButton";
+
+export default function Contact() {
+  const [submitted, setSubmitted] = useState(false);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    // Wire up Formspree, EmailJS, or Netlify Forms here
+    setSubmitted(true);
+  }
+
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-3xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-10 mb-2">
+          GUESTBOOK.CGI
+        </h1>
+        <p className="font-vt323 text-y2k-silver text-xl mb-8">
+          Leave your coordinates. Response time: faster than dial-up.
+        </p>
+
+        {submitted ? (
+          <p className="font-vt323 text-y2k-lime text-2xl">
+            ✓ MESSAGE RECEIVED. STANDING BY.
+          </p>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-5 font-vt323 text-lg"
+          >
+            <div>
+              <label className="block text-y2k-cyan mb-1">NAME_</label>
+              <input
+                type="text"
+                name="name"
+                required
+                className="w-full bg-y2k-panel border border-y2k-cyan text-y2k-silver px-3 py-2 focus:outline-none focus:border-y2k-lime"
+              />
+            </div>
+
+            <div>
+              <label className="block text-y2k-cyan mb-1">EMAIL_</label>
+              <input
+                type="email"
+                name="email"
+                required
+                className="w-full bg-y2k-panel border border-y2k-cyan text-y2k-silver px-3 py-2 focus:outline-none focus:border-y2k-lime"
+              />
+            </div>
+
+            <div>
+              <label className="block text-y2k-cyan mb-1">MESSAGE_</label>
+              <textarea
+                name="message"
+                rows={6}
+                required
+                className="w-full bg-y2k-panel border border-y2k-cyan text-y2k-silver px-3 py-2 focus:outline-none focus:border-y2k-lime resize-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="font-silkscreen text-sm text-black bg-y2k-lime border-2 border-y2k-lime px-6 py-2 hover:bg-y2k-cyan hover:border-y2k-cyan transition-colors"
+            >
+              TRANSMIT MESSAGE ►
+            </button>
+          </form>
+        )}
+
+        {/* Social links */}
+        <div className="mt-12 flex flex-wrap gap-3">
+          <ChromeButton to="https://github.com/yourhandle">GITHUB</ChromeButton>
+          <ChromeButton to="https://linkedin.com/in/yourhandle">LINKEDIN</ChromeButton>
+          <ChromeButton to="mailto:you@example.com">EMAIL</ChromeButton>
+        </div>
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+## Wiring Up Form Submissions
+
+<Tabs>
+  <Tab title="Formspree">
+    Replace the `onSubmit` handler with a `fetch` call to your Formspree form endpoint:
+
+    ```jsx
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const data = new FormData(e.target);
+      const res = await fetch("https://formspree.io/f/YOUR_FORM_ID", {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) setSubmitted(true);
+    }
+    ```
+
+    Sign up at [formspree.io](https://formspree.io), create a form, and replace `YOUR_FORM_ID` with the ID from your dashboard.
+  </Tab>
+  <Tab title="Netlify Forms">
+    If deploying to Netlify, add `data-netlify="true"` and a hidden `form-name` input. Remove the JavaScript `onSubmit` handler — Netlify intercepts the submission at the CDN level.
+
+    ```jsx
+    <form
+      name="contact"
+      method="POST"
+      data-netlify="true"
+    >
+      <input type="hidden" name="form-name" value="contact" />
+      {/* ...fields... */}
+    </form>
+    ```
+  </Tab>
+  <Tab title="EmailJS">
+    Install `@emailjs/browser` and call `emailjs.sendForm()` inside `handleSubmit`:
+
+    ```jsx
+    import emailjs from "@emailjs/browser";
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      await emailjs.sendForm(
+        "YOUR_SERVICE_ID",
+        "YOUR_TEMPLATE_ID",
+        e.target,
+        "YOUR_PUBLIC_KEY"
+      );
+      setSubmitted(true);
+    }
+    ```
+
+    Configure your service and template at [emailjs.com](https://www.emailjs.com).
+  </Tab>
+</Tabs>
+
+## Y2K Form Styling Reference
+
+| Element | Tailwind Classes |
+|---|---|
+| Form labels | `font-vt323 text-y2k-cyan` |
+| Text inputs & textarea | `bg-y2k-panel border border-y2k-cyan text-y2k-silver focus:border-y2k-lime` |
+| Submit button | `font-silkscreen bg-y2k-lime text-black border-2 border-y2k-lime hover:bg-y2k-cyan` |
+| Success message | `font-vt323 text-y2k-lime text-2xl` |
+| Social link buttons | `<ChromeButton>` component |
+
+<Tip>
+  The trailing underscore convention on form labels (`NAME_`, `EMAIL_`, `MESSAGE_`) is a classic terminal / command-line flourish. It reinforces the Y2K/cyberpunk aesthetic and signals to visitors that they're interacting with a retro-styled interface rather than a standard web form.
+</Tip>

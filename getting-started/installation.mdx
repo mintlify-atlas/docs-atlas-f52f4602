@@ -1,0 +1,107 @@
+---
+title: "Get Started with Retro Cosmic Arcade"
+sidebarTitle: "Installation"
+description: "Clone Retro Cosmic Arcade, install dependencies with npm/yarn/pnpm, start the Vite dev server, and open the site locally in minutes."
+---
+
+This page walks through everything you need to get Retro Cosmic Arcade running on your local machine. The project uses Vite as its build tool, so the development experience is fast — cold starts are typically under a second and hot module replacement keeps changes instant. You will need **Node.js 18 or later** and a package manager (npm, yarn, or pnpm) installed before you begin.
+
+## Prerequisites
+
+- Node.js 18+
+- npm, yarn, or pnpm
+- Git
+
+## Steps
+
+<Steps>
+  <Step title="Clone the repository">
+    Pull the source code to your local machine using Git.
+
+    ```bash
+    git clone https://github.com/apursley2012/retro-cosmic-arcade.git
+    cd retro-cosmic-arcade
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install all required npm packages. Choose the package manager you prefer:
+
+    <CodeGroup>
+      ```bash npm
+      npm install
+      ```
+
+      ```bash yarn
+      yarn install
+      ```
+
+      ```bash pnpm
+      pnpm install
+      ```
+    </CodeGroup>
+
+    This installs React 18, Vite, React Router 6 (`react-router-dom`), Framer Motion, Tailwind CSS, and all related tooling declared in `package.json`.
+  </Step>
+
+  <Step title="Start the development server">
+    Launch the Vite dev server with hot module replacement.
+
+    <CodeGroup>
+      ```bash npm
+      npm run dev
+      ```
+
+      ```bash yarn
+      yarn dev
+      ```
+
+      ```bash pnpm
+      pnpm dev
+      ```
+    </CodeGroup>
+
+    Vite will print the local URL once the server is ready:
+
+    ```
+      VITE v5.x.x  ready in 312 ms
+
+      ➜  Local:   http://localhost:5173/
+      ➜  Network: use --host to expose
+    ```
+  </Step>
+
+  <Step title="Open the site in your browser">
+    Navigate to [http://localhost:5173](http://localhost:5173) in any modern browser. You should see the Home page with the full Y2K aesthetic — cosmic background, scanline overlay, marquee ticker, and navigation bar.
+
+    <Tip>
+      If the cursor trail or scanline overlay is not visible, check that your browser has hardware acceleration enabled. The CRT overlay uses a CSS repeating-linear-gradient that renders best with GPU compositing active.
+    </Tip>
+  </Step>
+</Steps>
+
+## Building for Production
+
+When you are ready to deploy a production-optimised build, run:
+
+```bash
+npm run build
+```
+
+Vite compiles and tree-shakes the React app, outputs all HTML entry points and hashed asset files into the `dist/` directory, and generates `<link rel="modulepreload">` tags in every HTML file so each page pre-fetches its JavaScript before the user navigates.
+
+## Previewing the Production Build Locally
+
+Before pushing to a host, verify the production build looks correct with Vite's local preview server:
+
+```bash
+npm run preview
+```
+
+This serves the `dist/` folder at `http://localhost:4173` using the same static-file behaviour your production host will use.
+
+## Static Hosting Compatibility
+
+<Note>
+  Retro Cosmic Arcade uses **hash-based routing** (`/#/`, `/#/about`, etc.). This means the browser never sends the React route path to the server — every request lands on the HTML file already in `dist/`. No `_redirects` file, `vercel.json` rewrite rule, or `.htaccess` configuration is needed. The site deploys cleanly to GitHub Pages, Netlify (drag-and-drop), Vercel, Cloudflare Pages, AWS S3, or any plain static host.
+</Note>

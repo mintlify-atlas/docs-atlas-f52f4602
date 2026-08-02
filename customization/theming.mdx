@@ -1,0 +1,184 @@
+---
+title: "Customizing the Y2K Color Theme and Design Tokens"
+sidebarTitle: "Theming"
+description: "Swap color tokens, apply pixel border variants, enable the CRT scanline overlay, and style chrome buttons in Retro Cosmic Arcade's Y2K design system."
+---
+
+Retro Cosmic Arcade's visual identity is built on a compact set of hand-picked color tokens, all registered in the Tailwind config and used consistently across every component. This page covers every color token, the pixel border utility classes, the CRT scanline effect, the Win98-inspired chrome button, and global body styles — giving you everything you need to retheme the project without hunting through individual components.
+
+## Color Tokens
+
+<Note>
+  All color tokens are defined in the Tailwind config under `theme.extend.colors`. Adding a new token there makes it available as a Tailwind utility class (e.g. `bg-y2k-cyan`, `text-y2k-cyan`, `border-y2k-cyan`) everywhere in the project.
+</Note>
+
+| Token name       | Hex value | Tailwind class prefix | Typical use                                 |
+|------------------|-----------|-----------------------|---------------------------------------------|
+| `y2k-black`      | `#060010` | `bg-y2k-black`        | Page background, deepest dark surfaces      |
+| `y2k-panel`      | `#150826` | `bg-y2k-panel`        | Card/panel backgrounds, secondary surfaces  |
+| `y2k-cyan`       | `#4dffff` | `text-y2k-cyan`       | Primary accent, borders, glow effects       |
+| `y2k-magenta`    | `#ff4ad8` | `text-y2k-magenta`    | Secondary accent, shadows, selection colour |
+| `y2k-lime`       | `#adff2f` | `text-y2k-lime`       | Tertiary accent, HP bar fill, highlights    |
+| `y2k-silver`     | `#d4d0e8` | `text-y2k-silver`     | Chrome button top gradient, muted text      |
+| `y2k-darkSilver` | `#6b6480` | `text-y2k-darkSilver` | Chrome button bottom gradient, borders      |
+
+### Changing a Color
+
+<Steps>
+  <Step title="Open the Tailwind config">
+    Find `tailwind.config.js` (or `tailwind.config.ts`) in the project root and locate the `theme.extend.colors` block.
+
+    ```js tailwind.config.js
+    export default {
+      theme: {
+        extend: {
+          colors: {
+            'y2k-black':      '#060010',
+            'y2k-panel':      '#150826',
+            'y2k-cyan':       '#4dffff',
+            'y2k-magenta':    '#ff4ad8',
+            'y2k-lime':       '#adff2f',
+            'y2k-silver':     '#d4d0e8',
+            'y2k-darkSilver': '#6b6480',
+          },
+        },
+      },
+    }
+    ```
+  </Step>
+  <Step title="Update the hex value">
+    Replace the hex string for whichever token you want to change. Tailwind's JIT compiler picks up the change on the next hot-reload — all utility classes that reference that token update automatically.
+  </Step>
+  <Step title="Update CSS custom classes if needed">
+    Some utility classes in `assets/main.css` reference raw hex values directly (e.g. `.pixel-border-cyan`, `.chrome-bg`). If you change `y2k-cyan` you should also update those references to keep the design consistent. See the sections below.
+  </Step>
+</Steps>
+
+---
+
+## Pixel Border Utility Classes
+
+Three pixel-art border variants are available as global CSS classes. Each pairs a solid 2px border in one accent colour with a flat 4px offset shadow in a contrasting accent, producing a classic chunky pixel look without blur or opacity.
+
+<Tip>
+  Combine any pixel-border class with Tailwind's `rounded-none` utility to guarantee perfectly sharp pixel corners. Many browsers apply a slight radius by default; `rounded-none` overrides it so the border aligns exactly with the pixel grid.
+</Tip>
+
+<Tabs>
+  <Tab title="pixel-border-cyan">
+    ```css
+    .pixel-border-cyan {
+      border: 2px solid #4dffff;
+      box-shadow: 4px 4px #ff4ad8;
+    }
+    ```
+    Use this on cards, panels, and interactive elements you want to stand out with the primary cyan accent.
+  </Tab>
+  <Tab title="pixel-border-lime">
+    ```css
+    .pixel-border-lime {
+      border: 2px solid #adff2f;
+      box-shadow: 4px 4px #4dffff;
+    }
+    ```
+    Great for skill bars, status panels, and any element where lime-green conveys an "active" or "healthy" state.
+  </Tab>
+  <Tab title="pixel-border-magenta">
+    ```css
+    .pixel-border-magenta {
+      border: 2px solid #ff4ad8;
+      box-shadow: 4px 4px #adff2f;
+    }
+    ```
+    Ideal for badges, notifications, and call-to-action elements that need the most visual energy.
+  </Tab>
+  <Tab title="inset-bevel">
+    ```css
+    .inset-bevel {
+      border-top:    2px solid #060010;
+      border-left:   2px solid #060010;
+      border-bottom: 2px solid #4dffff;
+      border-right:  2px solid #4dffff;
+    }
+    ```
+    Simulates a pressed-in Win98 inset effect. The dark top/left edges and bright bottom/right edges create the illusion of depth without any `box-shadow` spread.
+  </Tab>
+</Tabs>
+
+---
+
+## CRT Scanline Effect
+
+The `.scanlines` class renders a CSS-only CRT overlay using a repeating linear gradient of alternating transparent and semi-transparent dark stripes at 4px intervals. It uses `pointer-events: none` so it sits visually on top without blocking clicks.
+
+```css
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.2)
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+```
+
+**Component usage:** The `Polaroid` component places a `<div className="scanlines absolute inset-0" />` inside each card's image area to give the preview panel a screen-like texture.
+
+**Global toggle:** The site Footer exposes a toggle button that adds or removes the `scanlines` class directly on `document.body`, applying the CRT overlay to the entire viewport. The relevant logic looks like:
+
+```js
+document.body.classList.toggle('scanlines');
+```
+
+<Warning>
+  Applying `.scanlines` to `document.body` also overlays fixed-position UI elements such as the cursor trail and the navigation bar. If you add new fixed overlays, test them with the scanline toggle enabled to ensure sufficient contrast.
+</Warning>
+
+---
+
+## Chrome Button Style
+
+The `.chrome-bg` class reproduces the Windows 98 / early-2000s bevel button aesthetic using a silver gradient and asymmetric borders that flip on `:active` to simulate a physical press.
+
+```css
+.chrome-bg {
+  background: linear-gradient(to bottom, #d4d0e8, #6b6480);
+  border-top:    2px solid #ffffff;
+  border-left:   2px solid #ffffff;
+  border-bottom: 2px solid #333333;
+  border-right:  2px solid #333333;
+  color: #000;
+  text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+}
+
+.chrome-bg:active {
+  border-top:    2px solid #333333;
+  border-left:   2px solid #333333;
+  border-bottom: 2px solid #ffffff;
+  border-right:  2px solid #ffffff;
+  background: linear-gradient(to bottom, #6b6480, #d4d0e8);
+}
+```
+
+The gradient runs from `y2k-silver` (`#d4d0e8`) at the top to `y2k-darkSilver` (`#6b6480`) at the bottom, matching the two silver tokens in the palette. To change the button colour, update both the gradient stops and the corresponding Tailwind tokens.
+
+---
+
+## Global Body Styles
+
+Three global body rules enforce the Y2K aesthetic across the entire page:
+
+<CardGroup cols={3}>
+  <Card title="Background" icon="paintbrush">
+    `background-color: #060010` (`y2k-black`) — a near-black deep purple that reads as pure black on most monitors but keeps warmth under glow effects.
+  </Card>
+  <Card title="Cursor" icon="arrow-pointer">
+    `cursor: crosshair` on `body`, overridden to `cursor: pointer` on `<a>` tags. The crosshair reinforces the arcade targeting aesthetic site-wide.
+  </Card>
+  <Card title="Text Selection" icon="i-cursor">
+    `::selection` background is set to `#ff4ad8` (y2k-magenta) with white text, so any text the user highlights flashes with the magenta accent colour.
+  </Card>
+</CardGroup>

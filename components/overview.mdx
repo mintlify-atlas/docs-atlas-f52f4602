@@ -1,0 +1,68 @@
+---
+title: "Y2K Component Library Overview"
+sidebarTitle: "Overview"
+description: "Explore all 8 Y2K retro-aesthetic components — from neon cursor trails to draggable Polaroids — built with React, Framer Motion, and Tailwind CSS."
+---
+
+The Retro Cosmic Arcade component library is a collection of eight purpose-built UI components that deliver a cohesive Y2K / early-internet aesthetic. Every component draws from the same Tailwind design token palette (`y2k-cyan`, `y2k-magenta`, `y2k-lime`, `y2k-panel`, and friends) and is written as a standard React functional component. Several components are powered by **Framer Motion** for physics-aware animations and gesture support.
+
+This page gives you a bird's-eye view of every component and links you to its dedicated reference page.
+
+---
+
+## Component groups
+
+<CardGroup cols={2}>
+  <Card title="ChromeButton" icon="hand-pointer" href="/components/chrome-button">
+    Windows 98-style beveled button with Framer Motion scale animations on hover and tap.
+  </Card>
+  <Card title="CursorTrail" icon="wand-magic-sparkles" href="/components/cursor-trail">
+    Fixed neon particle trail that follows the mouse cursor across the entire viewport.
+  </Card>
+  <Card title="Polaroid" icon="image-polaroid" href="/components/polaroid">
+    Draggable retro project card with tilt, badge, and scanline overlay.
+  </Card>
+  <Card title="HitCounter" icon="users" href="/components/hit-counter">
+    LCD segmented visitor counter display — wire it to any analytics endpoint.
+  </Card>
+  <Card title="MarqueeTicker" icon="rectangle-wide" href="/components/marquee-ticker">
+    CSS-animated scrolling announcement banner in VT323 font with neon lime text.
+  </Card>
+  <Card title="PixelHPBar" icon="chart-bar" href="/components/pixel-hp-bar">
+    Pixel-art 20-segment progress/skill bar styled after classic RPG HP bars.
+  </Card>
+  <Card title="WebringNav" icon="arrow-left-arrow-right" href="/components/webring-nav">
+    React Router 6 navigation bar styled as a retro webring with PREV/NEXT/RANDOM links.
+  </Card>
+  <Card title="Footer" icon="rectangle-history" href="/components/footer">
+    Site-wide footer component with copyright, socials, and Y2K panel styling.
+  </Card>
+</CardGroup>
+
+---
+
+## Shared dependencies
+
+<Note>
+  **Framer Motion** is a shared peer dependency used by `ChromeButton`, `CursorTrail`, and `Polaroid`. Make sure it is installed before using any of these three components.
+
+  ```bash
+  npm install framer-motion
+  ```
+</Note>
+
+<Tip>
+  All components consume Tailwind CSS custom tokens defined in `tailwind.config.js` (e.g. `y2k-cyan`, `y2k-lime`, `y2k-magenta`, `y2k-panel`, `y2k-darkSilver`, `y2k-silver`). Ensure these tokens are present in your config before adding individual components to a new project.
+</Tip>
+
+---
+
+## Font requirements
+
+The library relies on three typefaces that must be loaded (typically via `@font-face` or Google Fonts):
+
+| Tailwind class       | Font name   | Usage                                      |
+| -------------------- | ----------- | ------------------------------------------ |
+| `font-silkscreen`    | Silkscreen  | Buttons, card titles, navigation labels    |
+| `font-vt323`         | VT323       | Counters, HP bars, marquee text, labels    |
+| `font-inter`         | Inter       | Body / description text inside Polaroid    |

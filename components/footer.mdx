@@ -1,0 +1,132 @@
+---
+title: "Footer: CRT Scanline Toggle and Retro Badges"
+sidebarTitle: "Footer"
+description: "Documents the Footer component — its three 88×31 retro web badges, the CRT scanline overlay toggle, and body-class side effect behavior."
+---
+
+The `Footer` component lives at the bottom of every page in Retro Cosmic Arcade and does two jobs: it displays a row of classic **88×31 pixel web badges** and provides an interactive **CRT scanline toggle** that applies a full-viewport scan-line overlay to the entire site. It accepts no props and manages its own internal state.
+
+## Usage
+
+Drop `<Footer />` once at the bottom of each page layout, after all main content:
+
+```jsx
+import Footer from "./components/Footer";
+
+export default function MyPage() {
+  return (
+    <>
+      <WebringNav />
+      <main className="max-w-5xl mx-auto px-4">
+        {/* page content */}
+      </main>
+      <Footer />
+    </>
+  );
+}
+```
+
+<Note>
+  The Footer has **no props**. All behavior — badge rendering and scanline toggling — is managed internally via `useState` and `useEffect`.
+</Note>
+
+## CRT Scanline Toggle
+
+The Footer initialises a `scanlines` boolean state that defaults to `true` (scanlines **ON**). A `useEffect` hook watches this value and adds or removes the CSS class `scanlines-active` from `document.body` on every change.
+
+```jsx
+const [scanlines, setScanlines] = useState(true); // ON by default
+
+useEffect(() => {
+  if (scanlines) {
+    document.body.classList.add("scanlines-active");
+  } else {
+    document.body.classList.remove("scanlines-active");
+  }
+}, [scanlines]);
+```
+
+When `scanlines-active` is present on `<body>`, the `.scanlines` utility class drives a fixed, full-viewport `<div>` overlay (rendered inside the footer at `z-40`) that produces the retro scan-line effect.
+
+### CSS Definition
+
+The scan-line visual is produced by a repeating linear gradient defined in `assets/main.css`:
+
+```css
+.scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+```
+
+Every 4 px tall "row" is split: the top half is transparent and the bottom half is a 20%-opacity black band, creating the illusion of classic CRT phosphor lines. `pointer-events: none` ensures the overlay never blocks clicks or hover events on page content.
+
+<Tip>
+  The toggle button label reads `[ Toggle CRT Scanlines: ON ]` or `[ Toggle CRT Scanlines: OFF ]` and is styled with `text-y2k-cyan underline hover:text-y2k-magenta`. Users can turn scanlines off for a cleaner reading experience.
+</Tip>
+
+### Toggle Behavior Summary
+
+<Steps>
+  <Step title="Page loads">
+    `scanlines` initialises as `true`. `useEffect` fires and adds `scanlines-active` to `document.body`. The fixed `.scanlines` div is rendered inside the footer.
+  </Step>
+  <Step title="User clicks the toggle button">
+    `setScanlines(!scanlines)` flips the state. `useEffect` re-runs, removing `scanlines-active` from `document.body`. The overlay div is no longer rendered.
+  </Step>
+  <Step title="User clicks again">
+    State flips back to `true`. The class is re-added and the overlay reappears.
+  </Step>
+</Steps>
+
+## Retro 88×31 Badges
+
+The Footer renders three classic **88×31 web badges** — a staple of late-1990s/early-2000s personal home pages. Each badge is sized with Tailwind's `h-[31px] w-[88px]` to match the canonical badge dimensions.
+
+<CardGroup cols={3}>
+  <Card title="BEST VIEWED IN NETSCAPE" icon="globe">
+    **Background:** black (`bg-black`)  
+    **Text:** lime (`text-y2k-lime`)  
+    A tongue-in-cheek nod to the browser wars of the 1990s.
+  </Card>
+  <Card title="HTML 4.0 VALID!" icon="code">
+    **Background:** dark blue (`bg-blue-900`)  
+    **Text:** white (`text-white`)  
+    Parodies the W3C HTML validation badges that proud webmasters once displayed.
+  </Card>
+  <Card title="ANTI-BOOTSTRAP" icon="ban">
+    **Background:** magenta (`bg-y2k-magenta`)  
+    **Text:** black (`text-black`)  
+    A playful dig at the ubiquity of CSS frameworks — ironic given the site uses Tailwind.
+  </Card>
+</CardGroup>
+
+<Warning>
+  The badge text is hardcoded in JSX. If you want to add your own custom badge (e.g. "MADE WITH VITE"), duplicate the `div` block inside the badges container and apply the same `h-[31px] w-[88px]` sizing with your own background and text colour classes.
+</Warning>
+
+## Footer Text
+
+Below the badges, the footer renders two lines of flavour copy in `text-y2k-silver`:
+
+```
+Made with ♥ and questionable life choices.
+Best viewed in a browser made after 2010.
+```
+
+The first line uses the full `font-vt323 text-lg` size; the second uses `text-sm` for a subtle typographic hierarchy.
+
+## Styling Reference
+
+| Tailwind Class | Purpose |
+|---|---|
+| `mt-16 border-t-2 border-y2k-cyan` | Top border separating footer from page content |
+| `bg-y2k-panel` | Dark panel background consistent with the site's Y2K palette |
+| `font-vt323 text-lg` | VT323 monospace font at large size throughout the footer |
+| `h-[31px] w-[88px]` | Canonical 88×31 pixel badge dimensions |
+| `fixed inset-0 z-40 pointer-events-none` | Full-viewport scanline overlay that sits above content but below modals |

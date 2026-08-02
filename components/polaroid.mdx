@@ -1,0 +1,139 @@
+---
+title: "Polaroid: Draggable Retro Project Card"
+sidebarTitle: "Polaroid"
+description: "A Framer Motion draggable project card styled as a retro polaroid photo, with scanline overlay, optional badge stamp, and mock-data indicator."
+---
+
+`Polaroid` is a draggable, tilt-and-hover-animated project card designed to look like a physical polaroid photograph. Each card can be given an initial rotation angle so a grid of cards looks like they were casually tossed onto a desk. The card exposes title, description, DEMO and SRC link slots, an optional colored badge stamp at the top-right corner, and an optional "MOCK DATA" warning label for work-in-progress projects.
+
+---
+
+## Props
+
+<ParamField path="title" type="string" required>
+  The project name. Rendered twice: once in the scanline panel area using `font-vt323 text-y2k-cyan text-2xl`, and again beneath the panel in `font-silkscreen text-black text-sm`.
+</ParamField>
+
+<ParamField path="desc" type="string" required>
+  A short project description rendered below the title in `font-inter text-gray-600 text-xs leading-tight`.
+</ParamField>
+
+<ParamField path="badge" type="string">
+  Optional short text (e.g. `"NEW"`, `"WIP"`, `"HOT"`) rendered as a rotated stamp in the top-right corner of the card. The badge uses `bg-y2k-magenta text-white font-silkscreen` with a `rotate-12` transform and a 2px black border. Omit this prop to hide the badge entirely.
+</ParamField>
+
+<ParamField path="rotation" type="number">
+  The card's initial CSS rotation in degrees, applied via Framer Motion's `initial={{ rotate: rotation }}`. Use small positive and negative values (e.g. `-5` to `5`) to create a scattered-cards layout. Defaults to `0` if omitted.
+</ParamField>
+
+<ParamField path="mock" type="boolean">
+  When `true`, a yellow `"MOCK DATA"` stamp is rendered in the bottom-right corner of the card footer, rotated `-6deg`. Use this to visually flag cards that display placeholder content. Defaults to `false` if omitted.
+</ParamField>
+
+---
+
+## Usage
+
+### Single card
+
+```jsx
+import { Polaroid } from "@/components/Polaroid";
+
+function ProjectShowcase() {
+  return (
+    <Polaroid
+      title="Space Invaders Clone"
+      desc="A faithful recreation of the 1978 arcade classic, built with Canvas API."
+      badge="NEW"
+      rotation={-5}
+    />
+  );
+}
+```
+
+### Scattered grid
+
+```jsx
+function ProjectGrid() {
+  return (
+    <div className="flex flex-wrap gap-6 justify-center">
+      <Polaroid title="Project Alpha" desc="Description one."  rotation={-3} badge="LIVE" />
+      <Polaroid title="Project Beta"  desc="Description two."  rotation={2}  mock />
+      <Polaroid title="Project Gamma" desc="Description three." rotation={-1} />
+    </div>
+  );
+}
+```
+
+---
+
+## Drag behavior
+
+The component uses Framer Motion's `drag` prop with `dragConstraints` to allow the card to be dragged around within a bounded box relative to its resting position:
+
+| Constraint | Value   |
+| ---------- | ------- |
+| `left`     | `-50px` |
+| `right`    | `50px`  |
+| `top`      | `-50px` |
+| `bottom`   | `50px`  |
+
+The cursor changes to `cursor-grab` at rest and `cursor-grabbing` while the card is being dragged, matching expected drag interaction feedback.
+
+### Hover and drag gestures
+
+| Gesture         | Framer Motion value                    |
+| --------------- | -------------------------------------- |
+| `whileHover`    | `scale: 1.05, zIndex: 50`             |
+| `whileDrag`     | `scale: 1.1, zIndex: 50, rotate: 0`   |
+| `initial`       | `rotate: <rotation prop>`             |
+
+`zIndex: 50` is applied on both hover and drag so the active card always floats above its siblings in a stacked layout.
+
+---
+
+## Card anatomy
+
+```
+┌──────────────────────────────┐  ← white polaroid body (w-64 bg-white p-3 pb-12)
+│  ┌────────────────────────┐  │
+│  │ [scanlines + VT323     │  │  ← y2k-panel preview area (h-40 bg-y2k-panel)
+│  │  title in cyan]        │  │
+│  └────────────────────────┘  │
+│  Title in Silkscreen (black) │
+│  desc in Inter (gray)        │
+│                               │
+│  [DEMO]  [SRC]   [MOCK DATA] │  ← footer bar (absolute bottom-3)
+└──────────────────────────────┘
+         [BADGE] ← top-right, rotate-12, y2k-magenta
+```
+
+---
+
+## Styling notes
+
+- The card body is `w-64 bg-white` — a fixed 256px width. Wrap cards in a flex or grid container to control overall layout.
+- The `scanlines` class on the overlay div adds a CSS repeating-linear-gradient pattern that simulates an old CRT scan-line effect. This class must be defined in your global stylesheet.
+- DEMO and SRC `<a>` tags are currently hardcoded to `href="#"`.
+
+---
+
+## Caveats
+
+<Warning>
+  The **DEMO** and **SRC** links inside every card are currently hardcoded to `href="#"`. To link to real URLs, you need to add `demoUrl` and `srcUrl` props to the component's function signature in the source file and wire them to the respective `<a>` elements.
+</Warning>
+
+<Note>
+  Because drag uses Framer Motion's internal layout system, `Polaroid` cards must not be placed inside an element with `overflow: hidden` unless you intend to clip the drag area.
+</Note>
+
+<Tip>
+  For the most authentic scattered-photo look, pass a mix of small positive and negative `rotation` values (e.g. `-4`, `2`, `-1`, `3`) across a set of cards. Values beyond ±10 degrees tend to look unintentional.
+</Tip>
+
+---
+
+## Dependencies
+
+- **Framer Motion** — `motion.div` with `drag`, `dragConstraints`, `whileHover`, `whileDrag`, and `initial` are all used.

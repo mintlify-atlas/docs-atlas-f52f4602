@@ -1,0 +1,157 @@
+---
+title: "Writing Page: Dev Journal and Blog Posts (Route: /writing)"
+sidebarTitle: "Writing"
+description: "Documents the Writing page (JOURNAL in WebringNav) at /writing — post data structure, styling conventions, adding new entries, and MarqueeTicker integration."
+---
+
+The Writing page (route `/writing`, HTML shell title: **"Writing | retro-cosmic-arcade"**) is your public dev journal — a chronological collection of blog posts, notes, and thoughts styled to look like a zine printed on a CRT monitor. In the webring navigation this route is labelled **JOURNAL**, evoking the hand-coded "web journals" that predated blogging platforms. This page covers post structure, styling conventions, and how to add new entries.
+
+## Route Details
+
+| Property | Value |
+|---|---|
+| Route path | `/writing` |
+| HTML shell | `pages/Writing.html` |
+| `window.__STATIC_PAGE_ROUTE__` | `"/writing"` |
+| WebringNav label | `JOURNAL` |
+| `<title>` tag | `Writing \| retro-cosmic-arcade` |
+
+## Post Data Structure
+
+Blog entries are stored as an array of plain JavaScript objects inside the Writing route component. Each object holds the metadata and content needed to render a post card:
+
+```js
+const posts = [
+  {
+    id: 1,
+    title: "Why I Built a Portfolio in 2024 That Looks Like It's From 1999",
+    date: "2024-11-01",
+    summary: "An explanation of the aesthetic choices behind this site and why retro-futurism is still compelling.",
+    tags: ["meta", "design", "css"],
+    slug: "why-retro",
+  },
+  {
+    id: 2,
+    title: "Framer Motion Drag: Everything I Learned the Hard Way",
+    date: "2024-10-15",
+    summary: "Practical notes on Framer Motion's drag API — constraints, z-index stacking, and avoiding janky re-renders.",
+    tags: ["react", "animation", "framer-motion"],
+    slug: "framer-drag-notes",
+  },
+];
+```
+
+## Styling Conventions
+
+The Writing page uses a consistent typographic hierarchy across all posts:
+
+<Tabs>
+  <Tab title="Headings">
+    Post titles use `font-vt323 text-y2k-lime` or `text-y2k-cyan` at `text-2xl` to `text-3xl`. Section headings within a post use `font-silkscreen text-y2k-magenta` at `text-lg`.
+  </Tab>
+  <Tab title="Body text">
+    Post body copy and summaries use `font-inter` (or the system sans stack) at `text-y2k-silver`. This contrast — pixelated headings, clean body — keeps long-form content readable without sacrificing the retro aesthetic.
+  </Tab>
+  <Tab title="Tags / metadata">
+    Dates and tags are rendered in `font-vt323 text-y2k-darkSilver text-sm`. Tags can be displayed as small `inline-flex` chips with `border border-y2k-cyan px-2 rounded-none` (square corners reinforce the Y2K look).
+  </Tab>
+  <Tab title="Dividers">
+    Use `border-t border-y2k-cyan opacity-30` between post entries, or a `font-vt323 text-y2k-magenta` ASCII divider string like `"▓▓▓▓▓▓▓▓▓▓▓▓"`.
+  </Tab>
+</Tabs>
+
+## Basic Implementation
+
+```jsx
+import WebringNav from "../components/WebringNav";
+import CursorTrail from "../components/CursorTrail";
+import Footer from "../components/Footer";
+import MarqueeTicker from "../components/MarqueeTicker";
+
+const posts = [
+  {
+    id: 1,
+    title: "My First Post",
+    date: "2024-11-01",
+    summary: "A quick note on getting started.",
+    tags: ["meta"],
+  },
+];
+
+export default function Writing() {
+  return (
+    <>
+      <WebringNav />
+
+      <main className="max-w-5xl mx-auto px-4">
+        <h1 className="font-silkscreen text-y2k-lime text-4xl mt-10 mb-2">
+          JOURNAL.LOG
+        </h1>
+
+        {/* Featured headlines ticker */}
+        <MarqueeTicker className="mb-8">
+          {posts.map((p) => `★ ${p.title} `).join("")}
+        </MarqueeTicker>
+
+        {/* Post list */}
+        <div className="space-y-10 mb-12">
+          {posts.map((post) => (
+            <article key={post.id} className="border-t border-y2k-cyan pt-6">
+              <p className="font-vt323 text-y2k-darkSilver text-sm mb-1">
+                {post.date}
+              </p>
+              <h2 className="font-vt323 text-y2k-cyan text-2xl mb-2">
+                {post.title}
+              </h2>
+              <p className="font-inter text-y2k-silver text-base leading-relaxed mb-3">
+                {post.summary}
+              </p>
+              <div className="flex gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="font-vt323 text-xs text-y2k-magenta border border-y2k-magenta px-2"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </main>
+
+      <CursorTrail />
+      <Footer />
+    </>
+  );
+}
+```
+
+## Adding a New Post
+
+<Steps>
+  <Step title="Add an entry to the posts array">
+    Append a new object to the `posts` array with `id`, `title`, `date`, `summary`, and `tags` fields. The `date` should be in `YYYY-MM-DD` format for consistent sorting.
+  </Step>
+  <Step title="Sort by date descending (optional)">
+    To keep newest posts at the top, sort the array before mapping:
+    ```js
+    const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+    ```
+  </Step>
+  <Step title="Add full post content (optional)">
+    For long-form posts, add a `content` field (Markdown string or JSX) to the post object and render it inside the `<article>` block. Consider using a Markdown renderer like `react-markdown` for convenience.
+  </Step>
+  <Step title="Update the MarqueeTicker">
+    The ticker regenerates its content automatically if it maps over the `posts` array. No manual update needed.
+  </Step>
+</Steps>
+
+<Tip>
+  Use `<MarqueeTicker>` to surface **featured post headlines** at the top of the Journal page. Mapping `posts.map(p => "★ " + p.title)` into the ticker gives visitors a quick preview of what's in the archive without scrolling, and adds the retro news-ticker energy the site is built around.
+</Tip>
+
+<Note>
+  The Writing page currently renders all posts in a single long list. For archives with many entries, consider adding a simple tag filter (a row of `<ChromeButton>` elements that filter the displayed posts array) or pagination with prev/next links in the retro webring style.
+</Note>

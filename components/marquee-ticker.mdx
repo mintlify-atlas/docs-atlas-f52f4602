@@ -1,0 +1,101 @@
+---
+title: "MarqueeTicker: Scrolling Neon Text Announcement Banner"
+sidebarTitle: "MarqueeTicker"
+description: "A continuously scrolling CSS marquee banner styled with VT323 font, neon lime text, and magenta borders for a retro Y2K announcement-board look."
+---
+
+`MarqueeTicker` is a pure CSS scrolling text banner that continuously animates a line of text from the right edge of the screen to the left, looping infinitely. It evokes the classic `<marquee>` HTML element — but implemented with a Tailwind `animate-marquee` CSS animation instead, giving you full control over timing and style. The component is perfect for scrolling announcements, page taglines, or easter-egg messages at the top or bottom of a page.
+
+---
+
+## Props
+
+<ParamField path="text" type="string" required>
+  The string to scroll across the banner. The value is rendered as a single `whitespace-nowrap` line, so no matter how long the string is it will never wrap onto a second line. Use Unicode characters such as `★`, `▶`, or `✦` as visual separators between phrases.
+</ParamField>
+
+---
+
+## Usage
+
+### Basic announcement
+
+```jsx
+import { MarqueeTicker } from "@/components/MarqueeTicker";
+
+function PageHeader() {
+  return (
+    <MarqueeTicker text="WELCOME TO THE ARCADE ★ NOW LOADING... ★ PRESS START" />
+  );
+}
+```
+
+### Dynamic text from state or props
+
+```jsx
+function StatusBanner({ message }) {
+  return <MarqueeTicker text={message} />;
+}
+```
+
+---
+
+## How it works
+
+The outer `<div>` sets `overflow-hidden` and `w-full` so the text is clipped at the container boundaries. The inner `<div>` carries the `animate-marquee` class which applies a CSS animation defined in `tailwind.config.js` (or a global CSS file):
+
+```css
+@keyframes marquee {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(-100%); }
+}
+```
+
+| CSS property         | Value                  |
+| -------------------- | ---------------------- |
+| Animation name       | `marquee`              |
+| Duration             | `25s`                  |
+| Timing function      | `linear`               |
+| Iteration count      | `infinite`             |
+| Starting position    | `translateX(100%)`     |
+| Ending position      | `translateX(-100%)`    |
+
+The linear timing function ensures perfectly constant scroll speed regardless of text length.
+
+---
+
+## Styling notes
+
+| Token / Class          | Effect                                              |
+| ---------------------- | --------------------------------------------------- |
+| `font-vt323`           | Pixel-style VT323 monospace typeface                |
+| `text-xl`              | Font size `1.25rem`                                 |
+| `text-y2k-lime`        | Bright lime green text (`#adff2f`)                  |
+| `bg-y2k-panel`         | Dark panel background color                         |
+| `border-y-2`           | 2px top and bottom borders only                     |
+| `border-y2k-magenta`   | Hot magenta border color (`#ff4ad8`)                |
+| `py-1`                 | Vertical padding to give the text breathing room    |
+
+<Note>
+  The `animate-marquee` class must be registered in your Tailwind config's `theme.extend.animation` and `theme.extend.keyframes` blocks, or in a global CSS file. It is not a built-in Tailwind utility.
+</Note>
+
+---
+
+## Tips
+
+<Tip>
+  Use Unicode block characters as separators to break up long announcement strings:
+
+  ```jsx
+  <MarqueeTicker text="NEW PROJECT DROPPED ★ CHECK THE PROJECTS PAGE ▶ COMING SOON: BLOG RELAUNCH ✦" />
+  ```
+</Tip>
+
+<Tip>
+  For a faster or slower scroll, override the animation duration by adding a custom utility or inline style to the inner `animate-marquee` element. Alternatively, define a second variant (e.g. `animate-marquee-fast`) in your Tailwind config targeting the same keyframes with a shorter duration.
+</Tip>
+
+<Warning>
+  Very short strings (a few words) may leave a visible gap between the end of the text and the next loop iteration. Pad short strings with extra spaces or repeated phrases to ensure seamless looping.
+</Warning>

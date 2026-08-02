@@ -1,20 +1,97 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Retro Cosmic Arcade: Y2K Portfolio SPA"
+sidebarTitle: "Home"
+description: "Retro Cosmic Arcade is a neon-drenched Y2K personal portfolio built with React, Vite, and Framer Motion. Explore components, pages, and customization options."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+Retro Cosmic Arcade is a fully client-side portfolio SPA that channels the aesthetic of early 2000s web design — complete with CRT scanlines, neon glows, pixel-art UI elements, and webring navigation. Built on React 18, Vite, React Router 6, Framer Motion, and Tailwind CSS, every component is designed to be reusable and highly customizable.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Clone the repo, install dependencies, and spin up the dev server in minutes.
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/getting-started/project-structure">
+    Understand how pages, components, and assets are organized.
+  </Card>
+  <Card title="Component Library" icon="puzzle-piece" href="/components/overview">
+    Explore all eight Y2K UI components with props and usage examples.
+  </Card>
+  <Card title="Customization" icon="palette" href="/customization/theming">
+    Swap colors, fonts, and animations to make the site your own.
+  </Card>
+</CardGroup>
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+## What's Inside
+
+Retro Cosmic Arcade ships with eight purpose-built components and seven routed pages, all wired together with hash-based routing for zero-config static hosting.
+
+<CardGroup cols={3}>
+  <Card title="ChromeButton" icon="mouse-pointer" href="/components/chrome-button">
+    Windows 98-style beveled buttons with Framer Motion press animations.
+  </Card>
+  <Card title="CursorTrail" icon="wand-magic-sparkles" href="/components/cursor-trail">
+    Animated neon particle trail that follows the mouse pointer.
+  </Card>
+  <Card title="HitCounter" icon="calculator" href="/components/hit-counter">
+    Segmented LCD display showing a static visitor count.
+  </Card>
+  <Card title="MarqueeTicker" icon="align-justify" href="/components/marquee-ticker">
+    Infinite scrolling text banner with neon lime styling.
+  </Card>
+  <Card title="PixelHPBar" icon="chart-bar" href="/components/pixel-hp-bar">
+    Pixel-art health/skill bar with configurable percentage fill.
+  </Card>
+  <Card title="Polaroid" icon="image" href="/components/polaroid">
+    Draggable project card with rotation and Framer Motion constraints.
+  </Card>
+  <Card title="WebringNav" icon="arrow-right-arrow-left" href="/components/webring-nav">
+    Previous/Next/Random navigation linking all seven site sections.
+  </Card>
+  <Card title="Footer" icon="grip-lines" href="/components/footer">
+    Site footer with retro badge links and a CRT scanline toggle.
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+<Steps>
+  <Step title="Clone and install">
+    ```bash
+    git clone https://github.com/apursley2012/retro-cosmic-arcade.git
+    cd retro-cosmic-arcade
+    npm install
+    ```
+  </Step>
+  <Step title="Start the dev server">
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:5173](http://localhost:5173) to see the site.
+  </Step>
+  <Step title="Build for production">
+    ```bash
+    npm run build
+    ```
+    Static output lands in `dist/`. Deploy the folder to any static host.
+  </Step>
+  <Step title="Customize">
+    Edit the Y2K color tokens in `tailwind.config.js`, swap fonts in `src/index.css`, and add your own content to each page component.
+  </Step>
+</Steps>
+
+## Architecture at a Glance
+
+<CardGroup cols={2}>
+  <Card title="Routing" icon="route" href="/architecture/routing">
+    Hash-based React Router 6 setup with static HTML pre-rendered entry points per page.
+  </Card>
+  <Card title="Styling" icon="paintbrush" href="/architecture/styling">
+    Tailwind CSS with custom Y2K design tokens, pixel borders, and CRT effects.
+  </Card>
+  <Card title="Build System" icon="gear" href="/architecture/build">
+    Vite with multi-page entry configuration and ESM output.
+  </Card>
+  <Card title="Animations" icon="film" href="/customization/animations">
+    Framer Motion powers drag interactions, hover scales, and cursor particle effects.
+  </Card>
+</CardGroup>

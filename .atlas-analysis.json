@@ -1,23 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Retro Cosmic Arcade",
+  "projectType": "frontend",
+  "projectName": "Retro Cosmic Arcade",
+  "projectDescription": "A Y2K/retro-aesthetic personal portfolio SPA built with React, Vite, and Framer Motion, featuring neon pixel UI components and a webring-style navigation.",
   "theme": "willow",
-  "colors": {
-    "primary": "#4dffff",
-    "light": "#adff2f",
-    "dark": "#060010"
-  },
-  "navbar": {
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/apursley2012/retro-cosmic-arcade"
-    }
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/apursley2012/retro-cosmic-arcade"
-    }
-  },
+  "primaryColor": "#4dffff",
+  "lightColor": "#adff2f",
+  "darkColor": "#060010",
   "navigation": {
     "tabs": [
       {
@@ -77,5 +65,28 @@
         ]
       }
     ]
-  }
+  },
+  "keyFeatures": [
+    "Y2K/retro neon aesthetic with cyan, magenta, and lime color palette",
+    "CRT scanline overlay toggle in the footer",
+    "Animated cursor trail with glowing neon particles",
+    "Framer Motion drag-and-drop Polaroid project cards",
+    "Pixel-art HP bar for skills visualization",
+    "Retro hit counter with segmented LCD display",
+    "Scrolling marquee ticker for announcements",
+    "Webring-style navigation between site sections",
+    "Chrome-style beveled buttons replicating Windows 98/Y2K OS aesthetics",
+    "Hash-based routing for static hosting compatibility"
+  ],
+  "publicApiSurface": [
+    "ChromeButton — motion-animated beveled button component",
+    "CursorTrail — animated neon particle cursor trail overlay",
+    "Footer — site footer with CRT scanline toggle",
+    "HitCounter — segmented LCD-style visitor counter",
+    "MarqueeTicker — scrolling text marquee banner",
+    "PixelHPBar — pixel-art skill/health progress bar",
+    "Polaroid — draggable project card with Framer Motion",
+    "WebringNav — webring-style prev/next/random navigation",
+    "Routes: /, /about, /projects, /skills, /writing, /case-studies, /contact"
+  ]
 }
